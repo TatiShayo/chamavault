@@ -8,7 +8,7 @@
 - [x] Create/join chama flow: chairperson creates chama (name, meeting day, contribution amount, frequency)
 - [x] Member invitation: chairperson invites by email or phone → members receive link to join
 - [x] Member roles: Chairperson, Treasurer, Secretary, Member
-- [ ] Chama profile: name, photo, founding date, objectives, bank/M-Pesa account info
+- [x] Chama profile: name, photo, founding date, objectives, bank/M-Pesa account info
 
 ## PHASE 3: FINANCIAL MANAGEMENT — CORE
 - [ ] Contribution tracker: per member, per month — paid/pending/overdue status

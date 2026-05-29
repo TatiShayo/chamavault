@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Landmark, Users, UserPlus, Pencil, Banknote, Smartphone } from "lucide-react";
+import { ArrowLeft, Calendar, Landmark, Users, UserPlus, Pencil, Banknote, Smartphone, List } from "lucide-react";
 import { MemberList } from "./member-list";
 
 export default async function ChamaDetailPage({
@@ -161,15 +161,24 @@ export default async function ChamaDetailPage({
 
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Members</h2>
-          {["chairperson", "treasurer", "secretary"].includes(membership.role) && (
+          <div className="flex items-center gap-2">
             <Link
-              href={`/dashboard/chamas/${chamaId}/invite`}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-transparent bg-primary text-primary-foreground text-sm font-medium h-8 px-2.5 hover:bg-primary/80 transition-all"
+              href={`/dashboard/chamas/${chamaId}/contributions`}
+              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
             >
-              <UserPlus className="size-4" />
-              Invite
+              <List className="size-4" />
+              Contributions
             </Link>
-          )}
+            {["chairperson", "treasurer", "secretary"].includes(membership.role) && (
+              <Link
+                href={`/dashboard/chamas/${chamaId}/invite`}
+                className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-transparent bg-primary text-primary-foreground text-sm font-medium h-8 px-2.5 hover:bg-primary/80 transition-all"
+              >
+                <UserPlus className="size-4" />
+                Invite
+              </Link>
+            )}
+          </div>
         </div>
 
         <MemberList
