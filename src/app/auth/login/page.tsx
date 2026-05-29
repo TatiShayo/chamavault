@@ -2,8 +2,8 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -19,9 +19,12 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginFormInner() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get("invite");
+  const chamaName = searchParams.get("chama");
 
   const {
     register,
@@ -44,7 +47,11 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    if (inviteToken) {
+      router.push(`/join/${inviteToken}`);
+    } else {
+      router.push("/dashboard");
+    }
     router.refresh();
   };
 
@@ -53,7 +60,11 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">ChamaVault</CardTitle>
-          <CardDescription>Sign in to manage your chama</CardDescription>
+          <CardDescription>
+            {chamaName
+              ? `Sign in to join ${chamaName}`
+              : "Sign in to manage your chama"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -90,12 +101,20 @@ export default function LoginPage() {
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <Link href="/auth/signup" className="font-medium text-primary hover:underline">
+            <Link href={`/auth/signup${inviteToken ? `?invite=${inviteToken}&chama=${encodeURIComponent(chamaName || "")}` : ""}`} className="font-medium text-primary hover:underline">
               Sign up
             </Link>
           </p>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginFormInner />
+    </Suspense>
   );
 }

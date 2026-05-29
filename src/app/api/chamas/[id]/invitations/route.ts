@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { sendInvitationEmail } from "@/lib/email";
 
 export async function POST(
   request: Request,
@@ -65,10 +66,19 @@ export async function POST(
 
   const joinUrl = `${process.env.NEXT_PUBLIC_SITE_URL || request.headers.get("origin")}/join/${invitation.token}`;
 
+  const chamaName = chama?.name || "Chama";
+
+  // Send email if an email address was provided
+  if (email) {
+    sendInvitationEmail({ to: email, chamaName, joinUrl }).catch((e) =>
+      console.error("Email send failed:", e)
+    );
+  }
+
   return NextResponse.json({
     invitation,
     joinUrl,
-    chamaName: chama?.name,
+    chamaName,
   });
 }
 

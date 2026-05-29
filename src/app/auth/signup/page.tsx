@@ -2,8 +2,8 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -26,9 +26,12 @@ const signupSchema = z
 
 type SignupForm = z.infer<typeof signupSchema>;
 
-export default function SignupPage() {
+function SignupFormInner() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get("invite");
+  const chamaName = searchParams.get("chama");
 
   const {
     register,
@@ -56,7 +59,11 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/dashboard");
+    if (inviteToken) {
+      router.push(`/join/${inviteToken}`);
+    } else {
+      router.push("/dashboard");
+    }
     router.refresh();
   };
 
@@ -65,7 +72,11 @@ export default function SignupPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">ChamaVault</CardTitle>
-          <CardDescription>Create your account</CardDescription>
+          <CardDescription>
+            {chamaName
+              ? `Create your account to join ${chamaName}`
+              : "Create your account"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -134,5 +145,13 @@ export default function SignupPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupFormInner />
+    </Suspense>
   );
 }

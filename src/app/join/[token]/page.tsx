@@ -75,9 +75,34 @@ export default async function JoinPage({
   }
 
   if (!user) {
-    // Redirect to sign up with the invitation token so they can join after
-    redirect(
-      `/auth/signup?invite=${token}&chama=${encodeURIComponent((invitation as any).chama?.name || "")}`
+    const chamaName = (invitation as any).chama?.name || "this chama";
+    const signupUrl = `/auth/signup?invite=${token}&chama=${encodeURIComponent(chamaName)}`;
+    const loginUrl = `/auth/login?invite=${token}&chama=${encodeURIComponent(chamaName)}`;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle>You&apos;ve Been Invited</CardTitle>
+            <CardDescription>
+              {chamaName} has invited you! Sign in or create an account to join.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <Link
+              href={loginUrl}
+              className="inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-primary text-primary-foreground text-sm font-medium h-8 gap-1.5 px-2.5 hover:bg-primary/80 transition-all"
+            >
+              Sign In
+            </Link>
+            <Link
+              href={signupUrl}
+              className="inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background text-foreground text-sm font-medium h-8 gap-1.5 px-2.5 hover:bg-muted transition-all"
+            >
+              Create Account
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 

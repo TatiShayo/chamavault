@@ -238,6 +238,19 @@ create policy "Officers can insert members"
   on chama_members for insert
   with check (is_chama_officer(chama_id));
 
+create policy "Users can join via valid invitation"
+  on chama_members for insert
+  with check (
+    auth.uid() = user_id
+    and exists (
+      select 1 from invitations
+      where chama_id = chama_members.chama_id
+      and email = auth.jwt() ->> 'email'
+      and status = 'pending'
+      and expires_at > now()
+    )
+  );
+
 create policy "Officers can update members"
   on chama_members for update
   using (is_chama_officer(chama_id));
