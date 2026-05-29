@@ -132,6 +132,19 @@ create table if not exists vote_records (
   voted_at timestamptz default now()
 );
 
+-- Invitations for member join flow
+create table if not exists invitations (
+  id uuid primary key default uuid_generate_v4(),
+  chama_id uuid not null references chamas(id) on delete cascade,
+  token text not null unique default encode(gen_random_bytes(16), 'hex'),
+  email text,
+  phone text,
+  status text not null default 'pending', -- pending, accepted, expired
+  created_by uuid not null references auth.users(id),
+  created_at timestamptz default now(),
+  expires_at timestamptz default (now() + interval '7 days')
+);
+
 -- Prevent duplicate membership
 create unique index if not exists idx_chama_members_unique on chama_members(chama_id, user_id);
 
@@ -149,12 +162,15 @@ create index if not exists idx_expenses_chama on expenses(chama_id);
 create index if not exists idx_meetings_chama on meetings(chama_id);
 create index if not exists idx_votes_chama on votes(chama_id);
 create index if not exists idx_fines_member on fines(member_id);
+create index if not exists idx_invitations_token on invitations(token);
+create index if not exists idx_invitations_chama on invitations(chama_id);
 
 -- ============================================================
 -- ROW LEVEL SECURITY
 -- ============================================================
 
 alter table chamas enable row level security;
+alter table invitations enable row level security;
 alter table chama_members enable row level security;
 alter table contributions enable row level security;
 alter table fines enable row level security;
@@ -365,6 +381,16 @@ create policy "Members can cast their own vote"
       and chama_members.user_id = auth.uid()
     )
   );
+
+-- INVITATIONS policies
+create policy "Officers can manage invitations"
+  on invitations for all
+  using (is_chama_officer(chama_id))
+  with check (is_chama_officer(chama_id));
+
+create policy "Anyone can read invitation by token"
+  on invitations for select
+  using (status = 'pending' and expires_at > now());
 
 -- ============================================================
 -- SEED DATA: Demo chama "Wema Savings Group"

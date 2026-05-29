@@ -5,7 +5,7 @@
 
 ## PHASE 2: CHAMA SETUP
 - [x] Landing page: Swahili + English, "Simamia Chama Yako Vizuri" headline, feature list, KES pricing, WhatsApp demo CTA
-- [ ] Create/join chama flow: chairperson creates chama (name, meeting day, contribution amount, frequency)
+- [x] Create/join chama flow: chairperson creates chama (name, meeting day, contribution amount, frequency)
 - [ ] Member invitation: chairperson invites by email or phone → members receive link to join
 - [ ] Member roles: Chairperson, Treasurer, Secretary, Member
 - [ ] Chama profile: name, photo, founding date, objectives, bank/M-Pesa account info
