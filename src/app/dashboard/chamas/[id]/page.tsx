@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Landmark, Users, UserPlus } from "lucide-react";
+import { ArrowLeft, Calendar, Landmark, Users, UserPlus, Pencil, Banknote, Smartphone } from "lucide-react";
 import { MemberList } from "./member-list";
 
 export default async function ChamaDetailPage({
@@ -98,6 +98,17 @@ export default async function ChamaDetailPage({
                   })}
                 </CardDescription>
               </div>
+              {["chairperson", "treasurer", "secretary"].includes(
+                membership.role
+              ) && (
+                <Link
+                  href={`/dashboard/chamas/${chamaId}/edit`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+                >
+                  <Pencil className="size-4" />
+                  Edit
+                </Link>
+              )}
             </div>
           </CardHeader>
           <CardContent>
@@ -128,6 +139,22 @@ export default async function ChamaDetailPage({
               <p className="mt-4 text-sm text-muted-foreground italic">
                 &ldquo;{chama.objective}&rdquo;
               </p>
+            )}
+            {(chama.bank_account || chama.mpesa_number) && (
+              <div className="mt-4 border-t pt-4 grid gap-2 sm:grid-cols-2">
+                {chama.bank_account && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Banknote className="size-4" />
+                    <span>{chama.bank_account}</span>
+                  </div>
+                )}
+                {chama.mpesa_number && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Smartphone className="size-4" />
+                    <span>{chama.mpesa_number}</span>
+                  </div>
+                )}
+              </div>
             )}
           </CardContent>
         </Card>

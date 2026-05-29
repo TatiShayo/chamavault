@@ -18,6 +18,8 @@ create table if not exists chamas (
   meeting_day text not null,
   meeting_frequency text not null default 'monthly', -- weekly, biweekly, monthly
   contribution_amount numeric not null,
+  bank_account text,
+  mpesa_number text,
   is_active boolean default true,
   created_at timestamptz default now(),
   created_by uuid not null references auth.users(id)
