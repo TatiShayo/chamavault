@@ -194,49 +194,49 @@ export default async function ChamaDetailPage({
 
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Members</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 overflow-x-auto">
             <Link
               href={`/dashboard/chamas/${chamaId}/contributions`}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+              className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
             >
-              <List className="size-4" />
-              Contributions
+              <List className="size-3.5" />
+              <span className="hidden sm:inline">Contributions</span>
             </Link>
             <Link
               href={`/dashboard/chamas/${chamaId}/fines`}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+              className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
             >
-              <List className="size-4" />
-              Fines
+              <List className="size-3.5" />
+              <span className="hidden sm:inline">Fines</span>
             </Link>
             <Link
               href={`/dashboard/chamas/${chamaId}/loans`}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+              className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
             >
-              <List className="size-4" />
-              Loans
+              <List className="size-3.5" />
+              <span className="hidden sm:inline">Loans</span>
             </Link>
             <Link
               href={`/dashboard/chamas/${chamaId}/meetings`}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+              className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
             >
-              <List className="size-4" />
-              Meetings
+              <List className="size-3.5" />
+              <span className="hidden sm:inline">Meetings</span>
             </Link>
             <Link
               href={`/dashboard/chamas/${chamaId}/votes`}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+              className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
             >
-              <List className="size-4" />
-              Votes
+              <List className="size-3.5" />
+              <span className="hidden sm:inline">Votes</span>
             </Link>
             {["chairperson", "treasurer", "secretary"].includes(membership.role) && (
               <Link
                 href={`/dashboard/chamas/${chamaId}/invite`}
-                className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-transparent bg-primary text-primary-foreground text-sm font-medium h-8 px-2.5 hover:bg-primary/80 transition-all"
+                className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-transparent bg-primary text-primary-foreground text-xs font-medium h-8 px-2.5 hover:bg-primary/80 transition-all"
               >
-                <UserPlus className="size-4" />
-                Invite
+                <UserPlus className="size-3.5" />
+                <span className="hidden sm:inline">Invite</span>
               </Link>
             )}
           </div>

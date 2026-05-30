@@ -163,37 +163,37 @@ export function MemberList({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 {isOfficer && (
-                  <div className="flex gap-1">
+                  <div className="flex gap-0.5">
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="text-orange-600 hover:text-orange-700 dark:text-orange-400"
+                      className="size-7 text-orange-600 hover:text-orange-700 dark:text-orange-400"
                       title="Download statement PDF"
                       onClick={() =>
                         window.open(`/api/chamas/${chamaId}/statement?memberId=${member.id}`, "_blank")
                       }
                     >
-                      <FileText className="size-3.5" />
+                      <FileText className="size-3" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                      className="size-7 text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
                       title="Send WhatsApp contribution reminder"
                       onClick={() => handleWhatsAppContribution(member)}
                     >
-                      <MessageCircle className="size-3.5" />
+                      <MessageCircle className="size-3" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                      className="size-7 text-blue-600 hover:text-blue-700 dark:text-blue-400"
                       title="Send email contribution reminder"
                       onClick={() => handleEmailContribution(member)}
                     >
-                      <Mail className="size-3.5" />
+                      <Mail className="size-3" />
                     </Button>
                   </div>
                 )}

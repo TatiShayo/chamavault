@@ -34,7 +34,7 @@
 ## PHASE 6: COMMUNICATION
 - [x] WhatsApp reminders: generate wa.me link with contribution reminder message per member
 - [x] Email notifications: contribution due reminder, meeting reminder, loan approval notice
-- [ ] Monthly statement: PDF statement per member showing their contributions, loans, balance
+- [x] Monthly statement: PDF statement per member showing their contributions, loans, balance
 
 ## PHASE 7: TESTING & POLISH
 - [ ] Mobile-first CSS (most users on Android, small screens) — test at 360px
