@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Mail, MessageCircle } from "lucide-react";
+import { Mail, MessageCircle, FileText } from "lucide-react";
 import { contributionReminder, meetingReminder } from "@/lib/whatsapp";
 import { toast } from "sonner";
 
@@ -166,6 +166,17 @@ export function MemberList({
               <div className="flex items-center gap-2">
                 {isOfficer && (
                   <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-orange-600 hover:text-orange-700 dark:text-orange-400"
+                      title="Download statement PDF"
+                      onClick={() =>
+                        window.open(`/api/chamas/${chamaId}/statement?memberId=${member.id}`, "_blank")
+                      }
+                    >
+                      <FileText className="size-3.5" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon-xs"
