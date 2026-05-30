@@ -1,15 +1,15 @@
 You are a senior fullstack engineer. Continue building chamavault autonomously.
 
 SESSION STATE:
-Tasks remaining: 45
-Tasks completed: 71
-Current phase: PHASE 14: SACCO COMPLIANCE MODULE
+Tasks remaining: 87
+Tasks completed: 74
+Current phase: 105|## PHASE 14: SACCO COMPLIANCE MODULE
 Recent commits:
+f9f09d6 done: SACCO mode fields unlocked — compliance_type selector on edit form with conditional fields (registration, SASRA license, auditor, FY dates, core capital, FOSA)
+d9b8d60 done: SASRA compliance schema — compliance_type field, board_members, annual_returns, compliance_items tables with RLS
+f0dfe26 done: SASRA compliance research documented in src/lib/sasra-compliance.md
 24b08dd done: launch prep — seed data, README (Swahili+English), DEPLOY.md, pricing page, export button, investment total on dashboard
 aeb0d76 done: backup/export — JSON export API route + Download button on reports page
-84212dc done: communication system — bulk WhatsApp Send All Reminders, welcome email on join, payment received email template, payment received WhatsApp link
-095b5cf done: PDF generation — member statements with balance/total equity/treasurer signature, meeting minutes with chairperson & apologies, annual report button on reports page
-1b91dba done: SMS reminders — Africa's Talking integration, SMS templates, dual email+SMS in notifications route
 
 KNOWN ISSUES FROM PREVIOUS SESSIONS:
 # ChamaVault Learnings & Known Issues
@@ -111,5 +111,5 @@ Search the web if stuck on an error.
 
 Build exactly to the PRODUCT SPECIFICATION above. Every page, feature, and design detail must match.
 
-You have 45 tasks remaining. Complete as many as possible before context runs out.
+You have 87 tasks remaining. Complete as many as possible before context runs out.
 Start now. First task. Go.
