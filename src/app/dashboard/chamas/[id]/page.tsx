@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTreasuryBalance } from "@/lib/treasury";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +57,8 @@ export default async function ChamaDetailPage({
     .select("id, user_id, full_name, role, joined_at")
     .eq("chama_id", chamaId)
     .order("joined_at", { ascending: true });
+
+  const treasury = await getTreasuryBalance(chamaId);
 
   const formatKES = (amount: number) =>
     new Intl.NumberFormat("en-KE", {
@@ -158,6 +161,36 @@ export default async function ChamaDetailPage({
             )}
           </CardContent>
         </Card>
+
+        <div className="mb-6 overflow-hidden rounded-xl bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 p-6 text-white shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-white/80">Treasury Balance</p>
+              <p className="text-3xl font-bold tracking-tight">
+                {formatKES(treasury.balance)}
+              </p>
+            </div>
+            <Landmark className="size-10 opacity-30" />
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-white/70">Contributions</p>
+              <p className="font-semibold">{formatKES(treasury.totalContributions)}</p>
+            </div>
+            <div>
+              <p className="text-white/70">Expenses</p>
+              <p className="font-semibold">{formatKES(treasury.totalExpenses)}</p>
+            </div>
+            <div>
+              <p className="text-white/70">Active Loans</p>
+              <p className="font-semibold">{formatKES(treasury.activeLoans)}</p>
+            </div>
+            <div>
+              <p className="text-white/70">Repaid</p>
+              <p className="font-semibold">{formatKES(treasury.totalRepaid)}</p>
+            </div>
+          </div>
+        </div>
 
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Members</h2>

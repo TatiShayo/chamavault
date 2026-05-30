@@ -11,11 +11,11 @@
 - [x] Chama profile: name, photo, founding date, objectives, bank/M-Pesa account info
 
 ## PHASE 3: FINANCIAL MANAGEMENT — CORE
-- [ ] Contribution tracker: per member, per month — paid/pending/overdue status
-- [ ] Record contribution: treasurer selects member + month + amount → log to DB
-- [ ] M-Pesa contribution: member pays via M-Pesa, treasurer confirms receipt
-- [ ] Contribution summary: table showing all members × all months grid (like a school fees tracker)
-- [ ] Treasury balance: running total of all contributions minus loans minus expenses
+- [x] Contribution tracker: per member, per month — paid/pending/overdue status
+- [x] Record contribution: treasurer selects member + month + amount → log to DB
+- [x] M-Pesa contribution: member pays via M-Pesa, treasurer confirms receipt
+- [x] Contribution summary: table showing all members × all months grid (like a school fees tracker)
+- [x] Treasury balance: running total of all contributions minus loans minus expenses
 - [ ] Fine management: add fine to member (missed meeting, late contribution), track paid/unpaid
 - [ ] Expense log: record chama expenses (venue, snacks, admin costs) with receipts
 
