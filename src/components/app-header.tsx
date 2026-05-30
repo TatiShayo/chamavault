@@ -1,25 +1,40 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Landmark } from "lucide-react";
-import { LangToggle } from "@/components/lang-toggle";
+import { createClient } from "@/lib/supabase/server";
+import { AppHeaderClient } from "./app-header-client";
 
-export function AppHeader() {
-  return (
-    <header className="border-b bg-white dark:bg-zinc-900 sticky top-0 z-40">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-3 sm:px-4 py-3 sm:py-4">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <Landmark className="size-5 sm:size-6 text-amber-500" />
+export async function AppHeader() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return (
+      <header className="border-b bg-white dark:bg-zinc-900 sticky top-0 z-40">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-3 sm:px-4 py-3 sm:py-4">
           <span className="text-lg sm:text-xl font-bold">ChamaVault</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <LangToggle />
-          <form action="/auth/logout" method="post">
-            <Button variant="outline" size="sm" type="submit" className="text-xs sm:text-sm">
-              Sign Out
-            </Button>
-          </form>
         </div>
-      </div>
-    </header>
-  );
+      </header>
+    );
+  }
+
+  const { data: memberships } = await supabase
+    .from("chama_members")
+    .select("chama_id, role, chamas:chama_id(name)")
+    .eq("user_id", user.id);
+
+  const chamas = (memberships || []).map((m: Record<string, unknown>) => {
+    const chama = m.chamas as { name: string } | { name: string }[] | null;
+    const name =
+      chama && !Array.isArray(chama) && (chama as { name: string }).name
+        ? (chama as { name: string }).name
+        : "";
+    return {
+      id: m.chama_id as string,
+      name,
+      role: m.role as string,
+    };
+  });
+
+  return <AppHeaderClient chamas={chamas} />;
 }

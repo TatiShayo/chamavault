@@ -26,7 +26,7 @@ export default async function JoinPage({
     .from("invitations")
     .select("*, chama:chama_id(name)")
     .eq("token", token)
-    .single();
+    .maybeSingle();
 
   if (!invitation || invitation.status !== "pending") {
     return (

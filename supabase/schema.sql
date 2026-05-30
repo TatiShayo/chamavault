@@ -278,7 +278,7 @@ create policy "Users can join via valid invitation"
     and exists (
       select 1 from invitations
       where chama_id = chama_members.chama_id
-      and email = auth.jwt() ->> 'email'
+      and (email = auth.jwt() ->> 'email' or email is null)
       and status = 'pending'
       and expires_at > now()
     )
