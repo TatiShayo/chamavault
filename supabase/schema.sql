@@ -97,6 +97,17 @@ create table if not exists expenses (
   created_at timestamptz default now()
 );
 
+-- Dividend distributions
+create table if not exists dividends (
+  id uuid primary key default uuid_generate_v4(),
+  chama_id uuid not null references chamas(id) on delete cascade,
+  member_id uuid not null references chama_members(id) on delete cascade,
+  year integer not null,
+  amount numeric not null,
+  distributed_by uuid references auth.users(id),
+  distributed_at timestamptz default now()
+);
+
 -- Meetings
 create table if not exists meetings (
   id uuid primary key default uuid_generate_v4(),

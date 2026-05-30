@@ -20,8 +20,8 @@
 - [x] Expense log: record chama expenses (venue, snacks, admin costs) with receipts
 
 ## PHASE 4: LOANS & DIVIDENDS
-- [ ] Loan applications: member applies, committee votes (approve/reject), disbursement recorded
-- [ ] Loan repayment: track monthly repayments, outstanding balance, interest accrued
+- [x] Loan applications: member applies, committee votes (approve/reject), disbursement recorded
+- [x] Loan repayment: track monthly repayments, outstanding balance, interest accrued
 - [ ] Dividend calculator: at year-end, calculate each member's share based on contributions
 - [ ] Dividend distribution: record that dividends were paid out to each member
 
