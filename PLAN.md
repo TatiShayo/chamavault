@@ -104,7 +104,7 @@
 
 ## PHASE 14: SACCO COMPLIANCE MODULE
 - [x] Research Kenya Sacco Societies Regulatory Authority (SASRA) requirements — document in src/lib/sasra-compliance.md
-- [ ] Add compliance_type field to chamas table: 'informal_chama' | 'registered_group' | 'sacco'
+- [x] Add compliance_type field to chamas table: 'informal_chama' | 'registered_group' | 'sacco'
 - [ ] SACCO mode: when compliance_type='sacco', unlock additional fields: registration_number, sasra_license, auditor_name
 - [ ] Mandatory fields for SACCO: board_members table (chairman, treasurer, secretary, 2 directors), annual_returns table
 - [ ] Compliance checklist page /dashboard/[chamaId]/compliance: checklist of SASRA requirements with status

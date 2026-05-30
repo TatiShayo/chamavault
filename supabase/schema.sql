@@ -99,6 +99,61 @@ create table if not exists expenses (
   created_at timestamptz default now()
 );
 
+-- SACCO compliance fields on chamas
+alter table chamas add column if not exists compliance_type text not null default 'informal_chama';
+alter table chamas add constraint chk_compliance_type check (compliance_type in ('informal_chama', 'registered_group', 'sacco'));
+alter table chamas add column if not exists registration_number text;
+alter table chamas add column if not exists sasra_license_number text;
+alter table chamas add column if not exists sasra_license_expiry date;
+alter table chamas add column if not exists auditor_name text;
+alter table chamas add column if not exists financial_year_start date default '2025-01-01';
+alter table chamas add column if not exists financial_year_end date default '2025-12-31';
+alter table chamas add column if not exists core_capital numeric default 0;
+alter table chamas add column if not exists fosa_enabled boolean default false;
+
+-- Board members (SACCO governance)
+create table if not exists board_members (
+  id uuid primary key default uuid_generate_v4(),
+  chama_id uuid not null references chamas(id) on delete cascade,
+  member_id uuid references chama_members(id) on delete set null,
+  full_name text not null,
+  role text not null, -- chairperson, vice_chair, treasurer, secretary, director, supervisory_committee
+  appointed_date date default current_date,
+  term_expiry date,
+  status text not null default 'active', -- active, resigned, removed
+  created_at timestamptz default now()
+);
+create index if not exists idx_board_members_chama on board_members(chama_id);
+
+-- Annual returns (SASRA filings)
+create table if not exists annual_returns (
+  id uuid primary key default uuid_generate_v4(),
+  chama_id uuid not null references chamas(id) on delete cascade,
+  financial_year integer not null,
+  return_type text not null default 'annual', -- annual, quarterly
+  filed_date date,
+  status text not null default 'pending', -- pending, filed, overdue
+  sasra_reference text,
+  document_url text,
+  notes text,
+  created_at timestamptz default now()
+);
+create index if not exists idx_annual_returns_chama on annual_returns(chama_id);
+
+-- Compliance checklist items tracking
+create table if not exists compliance_items (
+  id uuid primary key default uuid_generate_v4(),
+  chama_id uuid not null references chamas(id) on delete cascade,
+  requirement text not null,
+  category text not null, -- governance, financial, member_protection, aml, operations
+  status text not null default 'non_compliant', -- compliant, non_compliant, in_progress
+  last_verified date,
+  evidence_notes text,
+  evidence_url text,
+  created_at timestamptz default now()
+);
+create index if not exists idx_compliance_items_chama on compliance_items(chama_id);
+
 -- Investments (property, stock, business tracked by the chama)
 create table if not exists investments (
   id uuid primary key default uuid_generate_v4(),
@@ -214,6 +269,9 @@ alter table meeting_attendance enable row level security;
 alter table votes enable row level security;
 alter table vote_records enable row level security;
 alter table investments enable row level security;
+alter table board_members enable row level security;
+alter table annual_returns enable row level security;
+alter table compliance_items enable row level security;
 
 -- Helper function: get chamas where the current user is a member
 create or replace function user_chama_ids()
@@ -437,6 +495,45 @@ create policy "Officers can manage invitations"
 create policy "Anyone can read invitation by token"
   on invitations for select
   using (status = 'pending' and expires_at > now());
+
+-- BOARD_MEMBERS policies
+create policy "Members can view board members in their chamas"
+  on board_members for select
+  using (chama_id in (select user_chama_ids()));
+
+create policy "Officers can manage board members"
+  on board_members for insert
+  with check (is_chama_officer(chama_id));
+
+create policy "Officers can update board members"
+  on board_members for update
+  using (is_chama_officer(chama_id));
+
+-- ANNUAL_RETURNS policies
+create policy "Members can view annual returns in their chamas"
+  on annual_returns for select
+  using (chama_id in (select user_chama_ids()));
+
+create policy "Officers can manage annual returns"
+  on annual_returns for insert
+  with check (is_chama_officer(chama_id));
+
+create policy "Officers can update annual returns"
+  on annual_returns for update
+  using (is_chama_officer(chama_id));
+
+-- COMPLIANCE_ITEMS policies
+create policy "Members can view compliance items in their chamas"
+  on compliance_items for select
+  using (chama_id in (select user_chama_ids()));
+
+create policy "Officers can manage compliance items"
+  on compliance_items for insert
+  with check (is_chama_officer(chama_id));
+
+create policy "Officers can update compliance items"
+  on compliance_items for update
+  using (is_chama_officer(chama_id));
 
 -- INVESTMENTS policies
 create policy "Members can view investments in their chamas"
