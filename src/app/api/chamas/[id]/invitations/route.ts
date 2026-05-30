@@ -65,6 +65,7 @@ export async function POST(
     .single();
 
   const joinUrl = `${process.env.NEXT_PUBLIC_SITE_URL || request.headers.get("origin")}/join/${invitation.token}`;
+  const publicUrl = `${process.env.NEXT_PUBLIC_SITE_URL || request.headers.get("origin")}/c/${chamaId}`;
 
   const chamaName = chama?.name || "Chama";
 
@@ -79,6 +80,7 @@ export async function POST(
     invitation,
     joinUrl,
     chamaName,
+    publicUrl,
   });
 }
 

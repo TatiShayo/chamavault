@@ -45,6 +45,6 @@
 ## PHASE 8: ADVANCED
 - [x] Chama constitution: upload/store PDF constitution document
 - [x] Investment tracker: record chama's investments (property, stock, business) with current value
-- [ ] Multi-chama: one user can be treasurer for multiple chamas
+- [x] Multi-chama: one user can be treasurer for multiple chamas
 - [ ] Public chama page: read-only page shareable with potential members
 - [ ] Automated SMS: integrate Africa's Talking API for SMS reminders

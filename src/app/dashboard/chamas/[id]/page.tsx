@@ -10,8 +10,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Landmark, Users, UserPlus, Pencil, Banknote, Smartphone, List, FileText, TrendingUp } from "lucide-react";
+import { ArrowLeft, Calendar, Landmark, Users, UserPlus, Pencil, Banknote, Smartphone, List, FileText, TrendingUp, Share2 } from "lucide-react";
 import { MemberList } from "./member-list";
+import { ShareChamaButton } from "./share-button";
 
 export default async function ChamaDetailPage({
   params,
@@ -93,13 +94,16 @@ export default async function ChamaDetailPage({
               {["chairperson", "treasurer", "secretary"].includes(
                 membership.role
               ) && (
-                <Link
-                  href={`/dashboard/chamas/${chamaId}/edit`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
-                >
-                  <Pencil className="size-4" />
-                  Edit
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/dashboard/chamas/${chamaId}/edit`}
+                    className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+                  >
+                    <Pencil className="size-4" />
+                    Edit
+                  </Link>
+                  <ShareChamaButton chamaId={chamaId} />
+                </div>
               )}
             </div>
           </CardHeader>
