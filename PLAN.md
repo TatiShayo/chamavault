@@ -37,9 +37,9 @@
 - [x] Monthly statement: PDF statement per member showing their contributions, loans, balance
 
 ## PHASE 7: TESTING & POLISH
-- [ ] Mobile-first CSS (most users on Android, small screens) — test at 360px
+- [x] Mobile-first CSS (most users on Android, small screens) — test at 360px
 - [x] Swahili language option (static, just Swahili strings for key UI text)
-- [ ] Unit tests: contribution calculations, loan balance tracking, dividend splits
+- [x] Unit tests: contribution calculations, loan balance tracking, dividend splits
 - [ ] Lighthouse ≥85
 
 ## PHASE 8: ADVANCED

@@ -142,3 +142,13 @@ Error: Unable to connect to the API. Please check your network connection.
 SESSION: 2026-05-30 14:15:11.781391
 ==================================================
 Error: Unable to connect to the API. Please check your network connection.
+
+==================================================
+SESSION: 2026-05-30 14:28:57.463914
+==================================================
+Error: Internal Server Error
+
+==================================================
+SESSION: 2026-05-30 14:35:34.553949
+==================================================
+Error: Unable to connect to the API. Please check your network connection.
