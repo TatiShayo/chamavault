@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { useLang, t } from "@/lib/i18n";
 
 const signupSchema = z
   .object({
@@ -32,6 +33,7 @@ function SignupFormInner() {
   const searchParams = useSearchParams();
   const inviteToken = searchParams.get("invite");
   const chamaName = searchParams.get("chama");
+  const { lang } = useLang();
 
   const {
     register,
@@ -74,14 +76,14 @@ function SignupFormInner() {
           <CardTitle className="text-2xl font-bold">ChamaVault</CardTitle>
           <CardDescription>
             {chamaName
-              ? `Create your account to join ${chamaName}`
-              : "Create your account"}
+              ? t(lang, "auth.signupJoin", chamaName)
+              : t(lang, "auth.signupTitle")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName">{t(lang, "auth.fullName")}</Label>
               <Input
                 id="fullName"
                 placeholder="Jane Doe"
@@ -92,7 +94,7 @@ function SignupFormInner() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t(lang, "auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -104,7 +106,7 @@ function SignupFormInner() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t(lang, "auth.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -116,7 +118,7 @@ function SignupFormInner() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t(lang, "auth.confirmPassword")}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -133,13 +135,13 @@ function SignupFormInner() {
               <p className="text-sm text-destructive">{error}</p>
             )}
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Creating account..." : "Create Account"}
+              {isSubmitting ? t(lang, "auth.creatingAccount") : t(lang, "auth.createAccount")}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
+            {t(lang, "auth.hasAccount")}{" "}
             <Link href="/auth/login" className="font-medium text-primary hover:underline">
-              Sign in
+              {t(lang, "auth.signIn")}
             </Link>
           </p>
         </CardContent>

@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { useLang, t } from "@/lib/i18n";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -25,6 +26,7 @@ function LoginFormInner() {
   const searchParams = useSearchParams();
   const inviteToken = searchParams.get("invite");
   const chamaName = searchParams.get("chama");
+  const { lang } = useLang();
 
   const {
     register,
@@ -62,14 +64,14 @@ function LoginFormInner() {
           <CardTitle className="text-2xl font-bold">ChamaVault</CardTitle>
           <CardDescription>
             {chamaName
-              ? `Sign in to join ${chamaName}`
-              : "Sign in to manage your chama"}
+              ? t(lang, "auth.loginJoin", chamaName)
+              : t(lang, "auth.loginTitle")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t(lang, "auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -81,7 +83,7 @@ function LoginFormInner() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t(lang, "auth.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -96,13 +98,13 @@ function LoginFormInner() {
               <p className="text-sm text-destructive">{error}</p>
             )}
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in..." : "Sign In"}
+              {isSubmitting ? t(lang, "auth.signingIn") : t(lang, "auth.signIn")}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            {t(lang, "auth.noAccount")}{" "}
             <Link href={`/auth/signup${inviteToken ? `?invite=${inviteToken}&chama=${encodeURIComponent(chamaName || "")}` : ""}`} className="font-medium text-primary hover:underline">
-              Sign up
+              {t(lang, "auth.signUp")}
             </Link>
           </p>
         </CardContent>
