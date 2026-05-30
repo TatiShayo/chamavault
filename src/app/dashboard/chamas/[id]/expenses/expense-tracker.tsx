@@ -144,11 +144,11 @@ export function ExpenseTracker({
 
   return (
     <div>
-      <div className="mb-6 overflow-hidden rounded-xl bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 p-6 text-white shadow-lg">
-        <div className="flex items-center justify-between">
+      <div className="mb-6 overflow-hidden rounded-xl bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 p-4 sm:p-6 text-white shadow-lg">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-white/80">Expenses This Month</p>
-            <p className="text-3xl font-bold tracking-tight">
+            <p className="text-xs sm:text-sm font-medium text-white/80">Expenses This Month</p>
+            <p className="text-2xl sm:text-3xl font-bold tracking-tight">
               {formatKES(monthTotal)}
             </p>
           </div>
@@ -156,7 +156,7 @@ export function ExpenseTracker({
             <Button
               variant="outline"
               size="sm"
-              className="border-white/20 text-white hover:bg-white/10 hover:text-white"
+              className="border-white/20 text-white hover:bg-white/10 hover:text-white text-xs sm:text-sm self-start sm:self-auto"
               onClick={() => {
                 setDescription("");
                 setAmount("");

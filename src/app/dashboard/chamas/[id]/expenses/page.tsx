@@ -51,18 +51,7 @@ export default async function ExpensesPage({
   const isOfficer = ["chairperson", "treasurer", "secretary"].includes(membership.role);
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <header className="border-b bg-white dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-bold">ChamaVault</h1>
-          <form action="/auth/logout" method="post">
-            <Button variant="outline" size="sm" type="submit">
-              Sign Out
-            </Button>
-          </form>
-        </div>
-      </header>
-      <main className="mx-auto max-w-4xl px-4 py-8">
+    <main className="mx-auto max-w-4xl px-3 sm:px-4 py-6 sm:py-8">
         <Link
           href={`/dashboard/chamas/${chamaId}`}
           className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -80,7 +69,6 @@ export default async function ExpensesPage({
           isOfficer={isOfficer}
           formatKES={formatKES}
         />
-      </main>
-    </div>
+    </main>
   );
 }

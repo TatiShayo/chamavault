@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ChamaVault — Chama Management",
   description: "Your chama. Organized. Transparent. Growing.",
+  viewport: { width: "device-width", initialScale: 1 },
 };
 
 export default function RootLayout({

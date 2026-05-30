@@ -67,18 +67,7 @@ export default async function ChamaDetailPage({
     }).format(amount);
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <header className="border-b bg-white dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-bold">ChamaVault</h1>
-          <form action="/auth/logout" method="post">
-            <Button variant="outline" size="sm" type="submit">
-              Sign Out
-            </Button>
-          </form>
-        </div>
-      </header>
-      <main className="mx-auto max-w-4xl px-4 py-8">
+    <main className="mx-auto max-w-4xl px-3 sm:px-4 py-6 sm:py-8">
         <Link
           href="/dashboard"
           className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -91,7 +80,7 @@ export default async function ChamaDetailPage({
           <CardHeader>
             <div className="flex items-start justify-between">
               <div>
-                <CardTitle className="text-2xl">{chama.name}</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl">{chama.name}</CardTitle>
                 <CardDescription>
                   Founded{" "}
                   {new Date(chama.founding_date).toLocaleDateString("en-KE", {
@@ -162,11 +151,11 @@ export default async function ChamaDetailPage({
           </CardContent>
         </Card>
 
-        <div className="mb-6 overflow-hidden rounded-xl bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 p-6 text-white shadow-lg">
+        <div className="mb-6 overflow-hidden rounded-xl bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 p-4 sm:p-6 text-white shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-white/80">Treasury Balance</p>
-              <p className="text-3xl font-bold tracking-tight">
+              <p className="text-xs sm:text-sm font-medium text-white/80">Treasury Balance</p>
+              <p className="text-2xl sm:text-3xl font-bold tracking-tight">
                 {formatKES(treasury.balance)}
               </p>
             </div>
@@ -257,7 +246,6 @@ export default async function ChamaDetailPage({
           contributionAmount={chama.contribution_amount}
           meetingDay={chama.meeting_day}
         />
-      </main>
-    </div>
+    </main>
   );
 }

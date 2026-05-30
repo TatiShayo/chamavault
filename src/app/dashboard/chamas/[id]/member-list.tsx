@@ -141,10 +141,10 @@ export function MemberList({
           {members.map((member) => (
             <div
               key={member.id}
-              className="flex items-center justify-between px-4 py-3"
+              className="flex items-center justify-between gap-1 px-3 sm:px-4 py-3"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <div className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
                   {member.full_name
                     .split(" ")
                     .map((n) => n[0])
@@ -152,9 +152,9 @@ export function MemberList({
                     .toUpperCase()
                     .slice(0, 2)}
                 </div>
-                <div>
-                  <p className="text-sm font-medium">{member.full_name}</p>
-                  <p className="text-xs text-muted-foreground">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate max-w-[100px] sm:max-w-none">{member.full_name}</p>
+                  <p className="text-xs text-muted-foreground hidden sm:block">
                     Joined{" "}
                     {new Date(member.joined_at).toLocaleDateString("en-KE", {
                       month: "short",
@@ -163,13 +163,13 @@ export function MemberList({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                 {isOfficer && (
                   <div className="flex gap-0.5">
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="size-7 text-orange-600 hover:text-orange-700 dark:text-orange-400"
+                      className="size-6 sm:size-7 text-orange-600 hover:text-orange-700 dark:text-orange-400"
                       title="Download statement PDF"
                       onClick={() =>
                         window.open(`/api/chamas/${chamaId}/statement?memberId=${member.id}`, "_blank")
@@ -180,7 +180,7 @@ export function MemberList({
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="size-7 text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                      className="size-6 sm:size-7 text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
                       title="Send WhatsApp contribution reminder"
                       onClick={() => handleWhatsAppContribution(member)}
                     >
@@ -189,7 +189,7 @@ export function MemberList({
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="size-7 text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                      className="size-6 sm:size-7 text-blue-600 hover:text-blue-700 dark:text-blue-400"
                       title="Send email contribution reminder"
                       onClick={() => handleEmailContribution(member)}
                     >
@@ -197,7 +197,7 @@ export function MemberList({
                     </Button>
                   </div>
                 )}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   {isOfficer && currentUserRole === "chairperson" ? (
                     <Select
                       value={member.role}
@@ -206,7 +206,7 @@ export function MemberList({
                       }}
                       disabled={updating === member.id}
                     >
-                      <SelectTrigger size="sm" className="h-7 text-xs min-w-[120px]">
+                      <SelectTrigger size="sm" className="h-7 text-xs min-w-[110px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -226,7 +226,7 @@ export function MemberList({
                       }}
                       disabled={updating === member.id}
                     >
-                      <SelectTrigger size="sm" className="h-7 text-xs min-w-[120px]">
+                      <SelectTrigger size="sm" className="h-7 text-xs min-w-[110px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -237,7 +237,7 @@ export function MemberList({
                   ) : (
                     <Badge
                       variant={roleColors[member.role] || "secondary"}
-                      className="capitalize"
+                      className="capitalize text-xs"
                     >
                       {member.role}
                     </Badge>

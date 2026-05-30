@@ -38,8 +38,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950">
       {/* Hero */}
-      <section className="mx-auto max-w-6xl px-4 py-20 text-center sm:py-32">
-        <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
+      <section className="mx-auto max-w-6xl px-3 sm:px-4 py-16 sm:py-32 text-center">
+        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
           Simamia Chama Yako Vizuri
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
@@ -73,7 +73,7 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="mx-auto max-w-6xl px-4 py-16">
+      <section className="mx-auto max-w-6xl px-3 sm:px-4 py-12 sm:py-16">
         <h2 className="mb-10 text-center text-3xl font-bold text-zinc-900 dark:text-zinc-50">
           Everything your chama needs
         </h2>
@@ -94,8 +94,8 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section className="bg-zinc-50 py-16 dark:bg-zinc-900">
-        <div className="mx-auto max-w-6xl px-4">
+      <section className="bg-zinc-50 py-12 sm:py-16 dark:bg-zinc-900">
+        <div className="mx-auto max-w-6xl px-3 sm:px-4">
           <h2 className="mb-10 text-center text-3xl font-bold text-zinc-900 dark:text-zinc-50">
             Simple Pricing
           </h2>
@@ -119,7 +119,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="mx-auto max-w-6xl px-4 py-8 text-center text-sm text-zinc-500">
+      <footer className="mx-auto max-w-6xl px-3 sm:px-4 py-6 sm:py-8 text-center text-sm text-zinc-500">
         ChamaVault &mdash; Your chama. Organized. Transparent. Growing.
       </footer>
     </div>

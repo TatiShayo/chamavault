@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Plus, Calendar, Landmark } from "lucide-react";
@@ -32,20 +31,9 @@ export default async function DashboardPage() {
     }).format(amount);
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <header className="border-b bg-white dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-bold">ChamaVault</h1>
-          <form action="/auth/logout" method="post">
-            <Button variant="outline" size="sm" type="submit">
-              Sign Out
-            </Button>
-          </form>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">Welcome, {displayName}</h2>
+    <main className="mx-auto max-w-6xl px-3 sm:px-4 py-6 sm:py-8">
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-xl sm:text-2xl font-semibold truncate max-w-[calc(100vw-5rem)] sm:max-w-none">Welcome, {displayName}</h2>
           <Link
             href="/dashboard/create-chama"
             className="inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-primary text-primary-foreground text-sm font-medium h-8 gap-1.5 px-2.5 hover:bg-primary/80 transition-all"
@@ -133,7 +121,6 @@ export default async function DashboardPage() {
             </Card>
           </div>
         )}
-      </main>
-    </div>
+    </main>
   );
 }

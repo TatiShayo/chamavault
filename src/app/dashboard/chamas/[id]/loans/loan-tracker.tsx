@@ -230,13 +230,13 @@ export function LoanTracker({
 
   return (
     <div>
-      <div className="mb-6 overflow-hidden rounded-xl bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600 p-6 text-white shadow-lg">
-        <div className="flex items-center justify-between">
+      <div className="mb-6 overflow-hidden rounded-xl bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600 p-4 sm:p-6 text-white shadow-lg">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-white/80">
+            <p className="text-xs sm:text-sm font-medium text-white/80">
               Active Loans Outstanding
             </p>
-            <p className="text-3xl font-bold tracking-tight">
+            <p className="text-2xl sm:text-3xl font-bold tracking-tight">
               {formatKES(activeTotal)}
             </p>
           </div>
@@ -245,7 +245,7 @@ export function LoanTracker({
               <Button
                 variant="outline"
                 size="sm"
-                className="border-white/20 text-white hover:bg-white/10 hover:text-white"
+                className="border-white/20 text-white hover:bg-white/10 hover:text-white text-xs sm:text-sm"
                 onClick={() => {
                   setRepayLoanId("");
                   setRepayAmount("");
@@ -253,13 +253,14 @@ export function LoanTracker({
                   setRepayOpen(true);
                 }}
               >
-                <Check className="size-4" />
-                Record Repayment
+                <Check className="size-3 sm:size-4" />
+                <span className="hidden sm:inline">Record Repayment</span>
+                <span className="sm:hidden">Repay</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="border-white/20 text-white hover:bg-white/10 hover:text-white"
+                className="border-white/20 text-white hover:bg-white/10 hover:text-white text-xs sm:text-sm"
                 onClick={() => {
                   setSelectedMember("");
                   setLoanAmount("");
@@ -270,8 +271,9 @@ export function LoanTracker({
                   setApplyOpen(true);
                 }}
               >
-                <Plus className="size-4" />
-                New Loan
+                <Plus className="size-3 sm:size-4" />
+                <span className="hidden sm:inline">New Loan</span>
+                <span className="sm:hidden">New</span>
               </Button>
             </div>
           )}
@@ -279,14 +281,14 @@ export function LoanTracker({
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="active">
+        <TabsList className="mb-4 w-full overflow-x-auto justify-start">
+          <TabsTrigger value="active" className="shrink-0 text-xs sm:text-sm">
             Active ({activeLoans.length})
           </TabsTrigger>
-          <TabsTrigger value="applications">
-            Applications ({applications.length})
+          <TabsTrigger value="applications" className="shrink-0 text-xs sm:text-sm">
+            Apps ({applications.length})
           </TabsTrigger>
-          <TabsTrigger value="history">
+          <TabsTrigger value="history" className="shrink-0 text-xs sm:text-sm">
             History ({history.length})
           </TabsTrigger>
         </TabsList>
