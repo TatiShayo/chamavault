@@ -202,6 +202,13 @@ export default async function ChamaDetailPage({
               <List className="size-4" />
               Contributions
             </Link>
+            <Link
+              href={`/dashboard/chamas/${chamaId}/fines`}
+              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+            >
+              <List className="size-4" />
+              Fines
+            </Link>
             {["chairperson", "treasurer", "secretary"].includes(membership.role) && (
               <Link
                 href={`/dashboard/chamas/${chamaId}/invite`}

@@ -37,3 +37,5 @@
 [2026-05-30 11:56:40.548068] Session #5: 23 tasks left
 
 [2026-05-30 11:58:21.102617] Session #1: 23 tasks left
+
+[2026-05-30] done: fine management — already existed (/dashboard/chamas/[id]/fines) with table, add modal, mark-as-paid, API routes
