@@ -95,8 +95,8 @@
 
 ## PHASE 13: LAUNCH PREP
 - [x] Swahili strings audit: i18n context with English/Kiswahili dictionary
-- [ ] Seed data: "Wema Savings Group" fully populated — 8 members, 12 months history, 2 loans, 3 expenses, 2 past meetings
+- [x] Seed data: "Wema Savings Group" fully populated — 8 members, 12 months history, 2 loans, 3 expenses, 2 past meetings
 - [x] Write unit tests: treasury balance, loan outstanding, arrears — all 45 tests pass
-- [ ] README.md in Swahili + English
-- [ ] DEPLOY.md with step-by-step Vercel + Supabase setup
-- [ ] Pricing page: KES 500/1000/2000 plans with Stripe checkout in KES currency
+- [x] README.md in Swahili + English
+- [x] DEPLOY.md with step-by-step Vercel + Supabase setup
+- [x] Pricing page: KES 500/1000/2000 plans with Stripe checkout in KES currency
