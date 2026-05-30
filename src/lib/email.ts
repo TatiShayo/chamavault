@@ -60,6 +60,113 @@ export async function sendInvitationEmail({
   return { data };
 }
 
+interface SendWelcomeParams {
+  to: string;
+  memberName: string;
+  chamaName: string;
+  contributionAmount: number;
+  meetingDay: string;
+  meetingFrequency: string;
+  treasurerName?: string;
+  chamaLink: string;
+}
+
+export async function sendWelcomeEmail({
+  to,
+  memberName,
+  chamaName,
+  contributionAmount,
+  meetingDay,
+  meetingFrequency,
+  treasurerName,
+  chamaLink,
+}: SendWelcomeParams) {
+  const resend = getResend();
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping email");
+    return { skipped: true };
+  }
+
+  const freqLabel =
+    meetingFrequency === "weekly" ? "week" :
+    meetingFrequency === "biweekly" ? "2 weeks" : "month";
+
+  const contactLine = treasurerName
+    ? `<p>Your treasurer is <strong>${treasurerName}</strong>. Reach out if you have any questions.</p>`
+    : "";
+
+  const { data, error } = await resend.emails.send({
+    from: "ChamaVault <noreply@chamavault.com>",
+    to,
+    subject: `Welcome to ${chamaName} on ChamaVault!`,
+    html: emailCard(`
+      <h1 style="color: #18181b;">Karibu ${memberName}! 🎉</h1>
+      <p>You have successfully joined <strong>${chamaName}</strong> on ChamaVault.</p>
+      <div style="background: #fef3c7; border-radius: 8px; padding: 16px; margin: 16px 0;">
+        <p style="margin: 0 0 4px;"><strong>Contribution:</strong> KES ${new Intl.NumberFormat("en-KE").format(contributionAmount)} / ${freqLabel}</p>
+        <p style="margin: 0 0 4px;"><strong>Meeting Day:</strong> ${meetingDay}s</p>
+        <p style="margin: 0;"><strong>Frequency:</strong> ${meetingFrequency}</p>
+      </div>
+      ${contactLine}
+      <p>Simamia Chama Yako Vizuri — track your contributions, loans, and meetings all in one place.</p>
+      ${emailButton("View Chama", chamaLink)}
+      <p style="color: #71717a; font-size: 12px;">Simamia Chama Yako Vizuri — ChamaVault</p>
+    `),
+  });
+
+  if (error) {
+    console.error("Failed to send welcome email:", error);
+    return { error };
+  }
+
+  return { data };
+}
+
+interface SendPaymentReceivedParams {
+  to: string;
+  memberName: string;
+  chamaName: string;
+  amountKES: number;
+  monthLabel: string;
+  chamaLink: string;
+}
+
+export async function sendPaymentReceived({
+  to,
+  memberName,
+  chamaName,
+  amountKES,
+  monthLabel,
+  chamaLink,
+}: SendPaymentReceivedParams) {
+  const resend = getResend();
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping email");
+    return { skipped: true };
+  }
+
+  const { data, error } = await resend.emails.send({
+    from: "ChamaVault <noreply@chamavault.com>",
+    to,
+    subject: `Payment Received: ${chamaName} — ${monthLabel}`,
+    html: emailCard(`
+      <h1 style="color: #18181b;">Payment Received ✅</h1>
+      <p>Habari <strong>${memberName}</strong>,</p>
+      <p>Your contribution of <strong>KES ${new Intl.NumberFormat("en-KE").format(amountKES)}</strong> for <strong>${monthLabel}</strong> has been recorded in <strong>${chamaName}</strong>.</p>
+      <p style="color: #16a34a; font-weight: 600;">Umeshukuriwa mchango wako. Asante!</p>
+      ${emailButton("View Chama", chamaLink)}
+      <p style="color: #71717a; font-size: 12px;">Simamia Chama Yako Vizuri — ChamaVault</p>
+    `),
+  });
+
+  if (error) {
+    console.error("Failed to send payment received email:", error);
+    return { error };
+  }
+
+  return { data };
+}
+
 interface SendContributionReminderParams {
   to: string;
   memberName: string;

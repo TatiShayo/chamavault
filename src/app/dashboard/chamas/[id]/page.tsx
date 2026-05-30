@@ -13,6 +13,7 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, Landmark, Users, UserPlus, Pencil, Banknote, Smartphone, List, FileText, TrendingUp, Share2 } from "lucide-react";
 import { MemberList } from "./member-list";
 import { ShareChamaButton } from "./share-button";
+import { BulkWhatsApp } from "./bulk-whatsapp";
 
 export default async function ChamaDetailPage({
   params,
@@ -270,6 +271,21 @@ export default async function ChamaDetailPage({
           contributionAmount={chama.contribution_amount}
           meetingDay={chama.meeting_day}
         />
+
+        {["chairperson", "treasurer", "secretary"].includes(membership.role) && (
+          <div className="mt-4">
+            <BulkWhatsApp
+              chamaId={chamaId}
+              members={(members || []).map((m) => ({
+                id: m.id,
+                full_name: m.full_name,
+                user_id: m.user_id,
+              }))}
+              chamaName={chama.name}
+              contributionAmount={chama.contribution_amount}
+            />
+          </div>
+        )}
     </main>
   );
 }

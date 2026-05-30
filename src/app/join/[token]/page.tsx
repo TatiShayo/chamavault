@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { sendWelcomeEmail } from "@/lib/email";
 import {
   Card,
   CardContent,
@@ -24,7 +25,7 @@ export default async function JoinPage({
   // Look up invitation
   const { data: invitation } = await supabase
     .from("invitations")
-    .select("*, chama:chama_id(name)")
+    .select("*, chama:chama_id(id, name, contribution_amount, meeting_day, meeting_frequency)")
     .eq("token", token)
     .maybeSingle();
 
@@ -74,8 +75,10 @@ export default async function JoinPage({
     );
   }
 
+  const chamaData = invitation.chama as unknown as { id: string; name: string; contribution_amount: number; meeting_day: string; meeting_frequency: string } | null;
+  const chamaName = chamaData?.name || "this chama";
+
   if (!user) {
-    const chamaName = (invitation as any).chama?.name || "this chama";
     const signupUrl = `/auth/signup?invite=${token}&chama=${encodeURIComponent(chamaName)}`;
     const loginUrl = `/auth/login?invite=${token}&chama=${encodeURIComponent(chamaName)}`;
     return (
@@ -121,7 +124,7 @@ export default async function JoinPage({
           <CardHeader>
             <CardTitle>Already a Member</CardTitle>
             <CardDescription>
-              You are already a member of {(invitation as any).chama?.name}.
+              You are already a member of {chamaData?.name}.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -173,6 +176,23 @@ export default async function JoinPage({
     .from("invitations")
     .update({ status: "accepted" })
     .eq("id", invitation.id);
+
+  // Send welcome email
+  const userEmail = user.email;
+  if (userEmail) {
+    const chama = (invitation as any).chama;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+    sendWelcomeEmail({
+      to: userEmail,
+      memberName: user.user_metadata?.full_name || user.email || "Member",
+      chamaName: chamaData?.name || "Chama",
+      contributionAmount: chamaData?.contribution_amount || 0,
+      meetingDay: chamaData?.meeting_day || "Monday",
+      meetingFrequency: chamaData?.meeting_frequency || "monthly",
+      chamaLink: `${siteUrl}/dashboard/chamas/${invitation.chama_id}`,
+    }).catch((e) => console.error("Welcome email failed:", e));
+  }
 
   redirect("/dashboard");
 }

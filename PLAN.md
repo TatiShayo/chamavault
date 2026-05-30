@@ -70,18 +70,18 @@
 - [x] Dividend distribution calculator: at year-end, calculates each member's payout — show as table, exportable
 
 ## PHASE 9: PDF GENERATION — STATEMENTS & MINUTES
-- [ ] Monthly contribution statement PDF per member:
+- [x] Monthly contribution statement PDF per member:
   Header: chama logo, name, statement period
   Member info, contribution history table (month | due | paid | balance)
   Loans section, fines section, total equity
   Footer: generated date, treasurer signature line
-- [ ] Meeting minutes PDF:
+- [x] Meeting minutes PDF:
   Formal header: chama name, date, venue, chairperson
   Members present list, apologies
   Agenda items with discussion notes
   Resolutions, next meeting date
   Signature blocks for chair and secretary
-- [ ] Annual report PDF:
+- [x] Annual report PDF:
   Cover page, executive summary
   Treasury growth chart (embed as base64 image)
   Member contribution compliance table
@@ -144,18 +144,18 @@
 - [ ] Dividend distribution calculator: at year-end, calculates each member's payout — show as table, exportable
 
 ## PHASE 9: PDF GENERATION — STATEMENTS & MINUTES
-- [ ] Monthly contribution statement PDF per member:
+- [x] Monthly contribution statement PDF per member:
   Header: chama logo, name, statement period
   Member info, contribution history table (month | due | paid | balance)
   Loans section, fines section, total equity
   Footer: generated date, treasurer signature line
-- [ ] Meeting minutes PDF:
+- [x] Meeting minutes PDF:
   Formal header: chama name, date, venue, chairperson
   Members present list, apologies
   Agenda items with discussion notes
   Resolutions, next meeting date
   Signature blocks for chair and secretary
-- [ ] Annual report PDF:
+- [x] Annual report PDF:
   Cover page, executive summary
   Treasury growth chart (embed as base64 image)
   Member contribution compliance table

@@ -55,3 +55,15 @@ export function openWhatsApp(message: string, phone?: string) {
     : "https://wa.me/";
   window.open(`${base}?text=${encodeURIComponent(message)}`, "_blank");
 }
+
+export function paymentReceived(
+  memberName: string,
+  chamaName: string,
+  amountKES: number
+): string {
+  const fmt = new Intl.NumberFormat("en-KE").format(amountKES);
+  const body = `Habari ${memberName},
+
+Umeshukuriwa mchango wako wa KES ${fmt} katika ${chamaName}. Asante!`;
+  return encodeWhatsAppLink(body);
+}
