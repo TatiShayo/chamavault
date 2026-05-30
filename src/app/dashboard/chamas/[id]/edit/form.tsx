@@ -6,7 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, Upload, Trash2, ExternalLink } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { FileText, Upload, Trash2, ExternalLink, Shield } from "lucide-react";
 
 export function EditChamaForm({
   chamaId,
@@ -21,6 +28,15 @@ export function EditChamaForm({
     mpesa_number: string | null;
     constitution_url?: string | null;
     constitution_name?: string | null;
+    compliance_type?: string;
+    registration_number?: string | null;
+    sasra_license_number?: string | null;
+    sasra_license_expiry?: string | null;
+    auditor_name?: string | null;
+    financial_year_start?: string;
+    financial_year_end?: string;
+    core_capital?: number;
+    fosa_enabled?: boolean;
   };
 }) {
   const router = useRouter();
@@ -34,6 +50,9 @@ export function EditChamaForm({
     chama.constitution_name || null
   );
   const [uploading, setUploading] = useState(false);
+  const [complianceType, setComplianceType] = useState<string>(
+    chama.compliance_type || "informal_chama"
+  );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,6 +70,15 @@ export function EditChamaForm({
         objective: form.get("objective"),
         bankAccount: form.get("bankAccount"),
         mpesaNumber: form.get("mpesaNumber"),
+        complianceType,
+        registrationNumber: form.get("registrationNumber") || null,
+        sasraLicenseNumber: form.get("sasraLicenseNumber") || null,
+        sasraLicenseExpiry: form.get("sasraLicenseExpiry") || null,
+        auditorName: form.get("auditorName") || null,
+        financialYearStart: form.get("financialYearStart") || null,
+        financialYearEnd: form.get("financialYearEnd") || null,
+        coreCapital: form.get("coreCapital") ? Number(form.get("coreCapital")) : null,
+        fosaEnabled: form.get("fosaEnabled") === "on",
       }),
     });
 
@@ -218,6 +246,134 @@ export function EditChamaForm({
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
+
+      <div className="border-t pt-4">
+        <div className="mb-4 flex items-center gap-2">
+          <Shield className="size-4 text-amber-500" />
+          <span className="font-semibold">SACCO Compliance Settings</span>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Compliance Type</Label>
+          <Select value={complianceType} onValueChange={(v) => setComplianceType(v || "informal_chama")}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="informal_chama">Informal Chama</SelectItem>
+              <SelectItem value="registered_group">Registered Group</SelectItem>
+              <SelectItem value="sacco">SACCO (SASRA Regulated)</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            SACCOs are regulated by SASRA and require additional compliance documentation.
+          </p>
+        </div>
+
+        {complianceType === "sacco" && (
+          <div className="mt-4 space-y-4 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+            <div className="space-y-2">
+              <Label htmlFor="registrationNumber">Registration Number</Label>
+              <Input
+                id="registrationNumber"
+                name="registrationNumber"
+                defaultValue={chama.registration_number || ""}
+                placeholder="e.g. CS/12345"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="sasraLicenseNumber">SASRA License Number</Label>
+                <Input
+                  id="sasraLicenseNumber"
+                  name="sasraLicenseNumber"
+                  defaultValue={chama.sasra_license_number || ""}
+                  placeholder="SASRA/DTS/2025/001"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sasraLicenseExpiry">License Expiry Date</Label>
+                <Input
+                  id="sasraLicenseExpiry"
+                  name="sasraLicenseExpiry"
+                  type="date"
+                  defaultValue={chama.sasra_license_expiry?.split("T")[0] || ""}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="auditorName">External Auditor</Label>
+              <Input
+                id="auditorName"
+                name="auditorName"
+                defaultValue={chama.auditor_name || ""}
+                placeholder="e.g. KPMG Kenya"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="financialYearStart">Financial Year Start</Label>
+                <Input
+                  id="financialYearStart"
+                  name="financialYearStart"
+                  type="date"
+                  defaultValue={chama.financial_year_start?.split("T")[0] || ""}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="financialYearEnd">Financial Year End</Label>
+                <Input
+                  id="financialYearEnd"
+                  name="financialYearEnd"
+                  type="date"
+                  defaultValue={chama.financial_year_end?.split("T")[0] || ""}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="coreCapital">Core Capital (KES)</Label>
+              <Input
+                id="coreCapital"
+                name="coreCapital"
+                type="number"
+                defaultValue={chama.core_capital || ""}
+                placeholder="e.g. 10000000"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                id="fosaEnabled"
+                name="fosaEnabled"
+                type="checkbox"
+                defaultChecked={chama.fosa_enabled || false}
+                className="size-4 rounded"
+              />
+              <Label htmlFor="fosaEnabled" className="cursor-pointer">
+                FOSA (Front Office Service Activity) Enabled
+              </Label>
+            </div>
+          </div>
+        )}
+
+        {complianceType === "registered_group" && (
+          <div className="mt-4 space-y-4 rounded-lg border p-4">
+            <div className="space-y-2">
+              <Label htmlFor="registrationNumber">Registration Number</Label>
+              <Input
+                id="registrationNumber"
+                name="registrationNumber"
+                defaultValue={chama.registration_number || ""}
+                placeholder="e.g. REG/2024/5678"
+              />
+            </div>
+          </div>
+        )}
+      </div>
 
       <Button type="submit" className="w-full" disabled={saving}>
         {saving ? "Saving..." : "Save Changes"}

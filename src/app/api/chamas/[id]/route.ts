@@ -31,7 +31,12 @@ export async function PATCH(
   }
 
   const body = await request.json();
-  const { name, objective, foundingDate, bankAccount, mpesaNumber } = body;
+  const {
+    name, objective, foundingDate, bankAccount, mpesaNumber,
+    complianceType, registrationNumber, sasraLicenseNumber,
+    sasraLicenseExpiry, auditorName, financialYearStart,
+    financialYearEnd, coreCapital, fosaEnabled,
+  } = body;
 
   if (name !== undefined && (!name || name.trim().length < 2)) {
     return NextResponse.json(
@@ -53,6 +58,15 @@ export async function PATCH(
   if (foundingDate !== undefined) updates.founding_date = foundingDate || null;
   if (bankAccount !== undefined) updates.bank_account = bankAccount || null;
   if (mpesaNumber !== undefined) updates.mpesa_number = mpesaNumber || null;
+  if (complianceType !== undefined) updates.compliance_type = complianceType;
+  if (registrationNumber !== undefined) updates.registration_number = registrationNumber || null;
+  if (sasraLicenseNumber !== undefined) updates.sasra_license_number = sasraLicenseNumber || null;
+  if (sasraLicenseExpiry !== undefined) updates.sasra_license_expiry = sasraLicenseExpiry || null;
+  if (auditorName !== undefined) updates.auditor_name = auditorName || null;
+  if (financialYearStart !== undefined) updates.financial_year_start = financialYearStart || null;
+  if (financialYearEnd !== undefined) updates.financial_year_end = financialYearEnd || null;
+  if (coreCapital !== undefined) updates.core_capital = coreCapital || null;
+  if (fosaEnabled !== undefined) updates.fosa_enabled = fosaEnabled;
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });
