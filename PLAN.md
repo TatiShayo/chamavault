@@ -17,7 +17,7 @@
 - [x] Contribution summary: table showing all members × all months grid (like a school fees tracker)
 - [x] Treasury balance: running total of all contributions minus loans minus expenses
 - [x] Fine management: add fine to member (missed meeting, late contribution), track paid/unpaid
-- [ ] Expense log: record chama expenses (venue, snacks, admin costs) with receipts
+- [x] Expense log: record chama expenses (venue, snacks, admin costs) with receipts
 
 ## PHASE 4: LOANS & DIVIDENDS
 - [ ] Loan applications: member applies, committee votes (approve/reject), disbursement recorded
