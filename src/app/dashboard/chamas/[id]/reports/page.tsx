@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 import { DividendCalculator } from "./dividend-calculator";
 import { MonthlyStatement } from "./monthly-statement";
 import { AnnualReport } from "./annual-report";
+import { ExportButton } from "./export-button";
 
 export default async function ReportsPage({
   params,
@@ -65,6 +66,10 @@ export default async function ReportsPage({
         <h2 className="mb-6 text-2xl font-bold">
           Reports — {chama.name}
         </h2>
+
+        <ExportButton chamaId={chamaId} />
+
+        <div className="my-8 border-t" />
 
         <h3 className="mb-4 text-lg font-semibold">Monthly Statement</h3>
 

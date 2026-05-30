@@ -1,3 +1,0 @@
-done: communication system — bulk WhatsApp Send All Reminders, welcome email on join, payment received email template, payment received WhatsApp link
-
-Co-authored-by: CommandCodeBot <noreply@commandcode.ai>

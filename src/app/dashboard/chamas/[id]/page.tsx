@@ -62,6 +62,16 @@ export default async function ChamaDetailPage({
 
   const treasury = await getTreasuryBalance(chamaId);
 
+  const { data: investments } = await supabase
+    .from("investments")
+    .select("current_value")
+    .eq("chama_id", chamaId);
+
+  const totalInvestments = (investments || []).reduce(
+    (sum, inv) => sum + Number(inv.current_value || 0),
+    0
+  );
+
   const formatKES = (amount: number) =>
     new Intl.NumberFormat("en-KE", {
       style: "currency",
@@ -197,6 +207,14 @@ export default async function ChamaDetailPage({
               <p className="font-semibold">{formatKES(treasury.totalLoanRepayments)}</p>
             </div>
           </div>
+          {totalInvestments > 0 && (
+            <div className="mt-4 border-t border-white/20 pt-3">
+              <div className="flex items-center justify-between">
+                <p className="text-white/70">Investment Portfolio</p>
+                <p className="font-semibold">{formatKES(totalInvestments)}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mb-4 flex items-center justify-between">

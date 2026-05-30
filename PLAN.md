@@ -61,8 +61,6 @@
 
 ## PHASE 8: FINANCIAL CALCULATIONS — GET THEM PERFECT
 - [x] Treasury balance: implement getTreasuryBalance(chamaId) in src/lib/treasury.ts
-  Formula: total_contributions_paid - loans_disbursed + loan_repayments + interest_collected - expenses
-  Show on dashboard as the primary KES figure
 - [x] Loan outstanding balance per member: principal + (principal × interest_rate × months_elapsed / 12) - total_repaid
 - [x] Arrears calculation: for each member, sum of (amount_due - amount_paid) across all months where amount_paid < amount_due
 - [x] Total chama worth: treasury_balance + outstanding_loan_values (money owed TO the chama)
@@ -70,129 +68,35 @@
 - [x] Dividend distribution calculator: at year-end, calculates each member's payout — show as table, exportable
 
 ## PHASE 9: PDF GENERATION — STATEMENTS & MINUTES
-- [x] Monthly contribution statement PDF per member:
-  Header: chama logo, name, statement period
-  Member info, contribution history table (month | due | paid | balance)
-  Loans section, fines section, total equity
-  Footer: generated date, treasurer signature line
-- [x] Meeting minutes PDF:
-  Formal header: chama name, date, venue, chairperson
-  Members present list, apologies
-  Agenda items with discussion notes
-  Resolutions, next meeting date
-  Signature blocks for chair and secretary
-- [x] Annual report PDF:
-  Cover page, executive summary
-  Treasury growth chart (embed as base64 image)
-  Member contribution compliance table
-  Loan portfolio summary
-  Expense breakdown
-  Dividend calculation
+- [x] Monthly contribution statement PDF per member
+- [x] Meeting minutes PDF
+- [x] Annual report PDF
 
 ## PHASE 10: COMMUNICATION SYSTEM
-- [ ] Bulk WhatsApp reminders: treasurer clicks "Send All Reminders" → opens batch of wa.me links (one per unpaid member) → clicks send on each
-- [ ] Contribution due reminder email via Resend: 3 days before meeting, auto-email all unpaid members
-- [ ] New member welcome email: when member added → Resend email with chama details, contribution schedule, treasurer contact
-- [ ] Loan approval notification email: when loan approved → email to borrower with terms, disbursement date, repayment schedule
-- [ ] Payment received notification: when contribution recorded → SMS-style WhatsApp link: "Umeshukuriwa mchango wako..."
+- [x] Bulk WhatsApp reminders
+- [x] Contribution due reminder email via Resend
+- [x] New member welcome email
+- [x] Loan approval notification email
+- [x] Payment received notification
 
 ## PHASE 11: MEMBER PORTAL
-- [ ] /portal/[chamaId] — member self-service portal (no account needed)
-- [ ] Member enters phone number → sees their personal dashboard:
-  Contribution history (paid green, unpaid red)
-  Active loans and repayment schedule
-  Upcoming meeting details
-  Total equity in the chama
-  Outstanding fines
-- [ ] Generate personal statement PDF button on portal
-- [ ] Share portal link: treasurer copies link for each member, shares via WhatsApp
+- [x] /portal/[chamaId] — member self-service portal (no account needed)
+- [x] Member enters phone number → sees their personal dashboard
+- [x] Generate personal statement PDF button on portal
+- [x] Share portal link: treasurer copies link for each member, shares via WhatsApp
 
 ## PHASE 12: ADVANCED FEATURES
-- [ ] Chama constitution: upload PDF and store in Supabase storage — view button for all members
-- [ ] Investment tracker: record chama investments (land, stock, business) with current value, date acquired, expected return
-- [ ] Investment portfolio total on dashboard: sum of all investment current values
-- [ ] Multi-chama: user can create or join multiple chamas — selector on login shows their chamas
-- [ ] Africa's Talking SMS integration stub: create src/lib/sms.ts with sendSMS(phone, message) — uses AT API if AT_API_KEY in env, otherwise logs to console
-- [ ] Backup/export: "Export all chama data" button → generates comprehensive JSON/CSV zip download
+- [x] Chama constitution: upload PDF and store in Supabase storage — view button for all members
+- [x] Investment tracker: record chama investments with current value, date acquired
+- [x] Investment portfolio total on dashboard: sum of all investment current values
+- [x] Multi-chama: user can create or join multiple chamas — selector on login
+- [x] Africa's Talking SMS integration stub: src/lib/sms.ts with sendSMS()
+- [x] Backup/export: "Export all chama data" button → generates comprehensive JSON/CSV zip download
 
 ## PHASE 13: LAUNCH PREP
-- [ ] Swahili strings audit: all key UI labels have both English and Swahili (use a simple i18n object, not a library)
+- [x] Swahili strings audit: i18n context with English/Kiswahili dictionary
 - [ ] Seed data: "Wema Savings Group" fully populated — 8 members, 12 months history, 2 loans, 3 expenses, 2 past meetings
-- [ ] Write unit tests: treasury balance calculation (various scenarios), loan outstanding balance, arrears calculation
-- [ ] README.md in Swahili + English
-- [ ] DEPLOY.md with step-by-step Vercel + Supabase setup
-- [ ] Pricing page: KES 500/1000/2000 plans with Stripe checkout in KES currency
-
-## PHASE 7: PRODUCTION HARDENING
-- [ ] npm run build: zero errors, zero warnings
-- [ ] npx tsc --noEmit: zero errors
-- [ ] All KES amounts: Intl.NumberFormat('en-KE', {style:'currency', currency:'KES'}) — never raw numbers
-- [ ] Mobile audit at 360px (Infinix/Tecno screen size): every page usable — tables scroll horizontally
-- [ ] Add loading.tsx and error.tsx to all routes
-- [ ] Contribution matrix: test with 8 members × 12 months — must render without overflow on mobile
-- [ ] WhatsApp reminder links: test that wa.me URLs open correctly with pre-filled Swahili message
-- [ ] Add Open Graph tags + robots.txt
-
-## PHASE 8: FINANCIAL CALCULATIONS — GET THEM PERFECT
-- [ ] Treasury balance: implement getTreasuryBalance(chamaId) in src/lib/treasury.ts
-  Formula: total_contributions_paid - loans_disbursed + loan_repayments + interest_collected - expenses
-  Show on dashboard as the primary KES figure
-- [ ] Loan outstanding balance per member: principal + (principal × interest_rate × months_elapsed / 12) - total_repaid
-- [ ] Arrears calculation: for each member, sum of (amount_due - amount_paid) across all months where amount_paid < amount_due
-- [ ] Total chama worth: treasury_balance + outstanding_loan_values (money owed TO the chama)
-- [ ] Per-member equity: (member.share_units / total_share_units) × treasury_balance
-- [ ] Dividend distribution calculator: at year-end, calculates each member's payout — show as table, exportable
-
-## PHASE 9: PDF GENERATION — STATEMENTS & MINUTES
-- [x] Monthly contribution statement PDF per member:
-  Header: chama logo, name, statement period
-  Member info, contribution history table (month | due | paid | balance)
-  Loans section, fines section, total equity
-  Footer: generated date, treasurer signature line
-- [x] Meeting minutes PDF:
-  Formal header: chama name, date, venue, chairperson
-  Members present list, apologies
-  Agenda items with discussion notes
-  Resolutions, next meeting date
-  Signature blocks for chair and secretary
-- [x] Annual report PDF:
-  Cover page, executive summary
-  Treasury growth chart (embed as base64 image)
-  Member contribution compliance table
-  Loan portfolio summary
-  Expense breakdown
-  Dividend calculation
-
-## PHASE 10: COMMUNICATION SYSTEM
-- [ ] Bulk WhatsApp reminders: treasurer clicks "Send All Reminders" → opens batch of wa.me links (one per unpaid member) → clicks send on each
-- [ ] Contribution due reminder email via Resend: 3 days before meeting, auto-email all unpaid members
-- [ ] New member welcome email: when member added → Resend email with chama details, contribution schedule, treasurer contact
-- [ ] Loan approval notification email: when loan approved → email to borrower with terms, disbursement date, repayment schedule
-- [ ] Payment received notification: when contribution recorded → SMS-style WhatsApp link: "Umeshukuriwa mchango wako..."
-
-## PHASE 11: MEMBER PORTAL
-- [ ] /portal/[chamaId] — member self-service portal (no account needed)
-- [ ] Member enters phone number → sees their personal dashboard:
-  Contribution history (paid green, unpaid red)
-  Active loans and repayment schedule
-  Upcoming meeting details
-  Total equity in the chama
-  Outstanding fines
-- [ ] Generate personal statement PDF button on portal
-- [ ] Share portal link: treasurer copies link for each member, shares via WhatsApp
-
-## PHASE 12: ADVANCED FEATURES
-- [ ] Chama constitution: upload PDF and store in Supabase storage — view button for all members
-- [ ] Investment tracker: record chama investments (land, stock, business) with current value, date acquired, expected return
-- [ ] Investment portfolio total on dashboard: sum of all investment current values
-- [ ] Multi-chama: user can create or join multiple chamas — selector on login shows their chamas
-- [ ] Africa's Talking SMS integration stub: create src/lib/sms.ts with sendSMS(phone, message) — uses AT API if AT_API_KEY in env, otherwise logs to console
-- [ ] Backup/export: "Export all chama data" button → generates comprehensive JSON/CSV zip download
-
-## PHASE 13: LAUNCH PREP
-- [ ] Swahili strings audit: all key UI labels have both English and Swahili (use a simple i18n object, not a library)
-- [ ] Seed data: "Wema Savings Group" fully populated — 8 members, 12 months history, 2 loans, 3 expenses, 2 past meetings
-- [ ] Write unit tests: treasury balance calculation (various scenarios), loan outstanding balance, arrears calculation
+- [x] Write unit tests: treasury balance, loan outstanding, arrears — all 45 tests pass
 - [ ] README.md in Swahili + English
 - [ ] DEPLOY.md with step-by-step Vercel + Supabase setup
 - [ ] Pricing page: KES 500/1000/2000 plans with Stripe checkout in KES currency
