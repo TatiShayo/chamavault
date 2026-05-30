@@ -13,6 +13,8 @@ create table if not exists chamas (
   id uuid primary key default uuid_generate_v4(),
   name text not null,
   photo_url text,
+  constitution_url text,
+  constitution_name text,
   founding_date date default current_date,
   objective text,
   meeting_day text not null,

@@ -31,7 +31,7 @@ export default async function EditChamaPage({
 
   const { data: chama } = await supabase
     .from("chamas")
-    .select("*")
+    .select("name, founding_date, objective, bank_account, mpesa_number, constitution_url, constitution_name")
     .eq("id", chamaId)
     .single();
 

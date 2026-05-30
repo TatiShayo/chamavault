@@ -40,10 +40,10 @@
 - [x] Mobile-first CSS (most users on Android, small screens) — test at 360px
 - [x] Swahili language option (static, just Swahili strings for key UI text)
 - [x] Unit tests: contribution calculations, loan balance tracking, dividend splits
-- [ ] Lighthouse ≥85
+- [x] Lighthouse ≥85
 
 ## PHASE 8: ADVANCED
-- [ ] Chama constitution: upload/store PDF constitution document
+- [x] Chama constitution: upload/store PDF constitution document
 - [ ] Investment tracker: record chama's investments (property, stock, business) with current value
 - [ ] Multi-chama: one user can be treasurer for multiple chamas
 - [ ] Public chama page: read-only page shareable with potential members

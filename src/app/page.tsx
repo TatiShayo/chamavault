@@ -26,13 +26,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950">
       {/* Lang toggle absolute top-right */}
-      <div className="mx-auto max-w-6xl px-3 sm:px-4 pt-4 flex justify-end">
+      <header className="mx-auto max-w-6xl px-3 sm:px-4 pt-4 flex justify-end">
         <LangToggle />
-      </div>
+      </header>
 
+      <main id="main-content">
       {/* Hero */}
-      <section className="mx-auto max-w-6xl px-3 sm:px-4 py-12 sm:py-32 text-center">
-        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+      <section className="mx-auto max-w-6xl px-3 sm:px-4 py-12 sm:py-32 text-center" aria-labelledby="hero-heading">
+        <h1 id="hero-heading" className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
           {t(lang, "landing.hero")}
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
@@ -66,8 +67,8 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="mx-auto max-w-6xl px-3 sm:px-4 py-12 sm:py-16">
-        <h2 className="mb-10 text-center text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+      <section className="mx-auto max-w-6xl px-3 sm:px-4 py-12 sm:py-16" aria-labelledby="features-heading">
+        <h2 id="features-heading" className="mb-10 text-center text-3xl font-bold text-zinc-900 dark:text-zinc-50">
           {t(lang, "landing.featuresTitle")}
         </h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -87,9 +88,9 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section className="bg-zinc-50 py-12 sm:py-16 dark:bg-zinc-900">
+      <section className="bg-zinc-50 py-12 sm:py-16 dark:bg-zinc-900" aria-labelledby="pricing-heading">
         <div className="mx-auto max-w-6xl px-3 sm:px-4">
-          <h2 className="mb-10 text-center text-3xl font-bold text-zinc-900 dark:text-zinc-50">
+          <h2 id="pricing-heading" className="mb-10 text-center text-3xl font-bold text-zinc-900 dark:text-zinc-50">
             {t(lang, "landing.pricingTitle")}
           </h2>
           <div className="grid gap-6 sm:grid-cols-3">
@@ -113,9 +114,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </main>
 
       {/* Footer */}
-      <footer className="mx-auto max-w-6xl px-3 sm:px-4 py-6 sm:py-8 text-center text-sm text-zinc-500">
+      <footer className="mx-auto max-w-6xl px-3 sm:px-4 py-6 sm:py-8 text-center text-sm text-zinc-500" role="contentinfo">
         {t(lang, "landing.footer")}
       </footer>
     </div>

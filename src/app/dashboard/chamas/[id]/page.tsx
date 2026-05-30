@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Landmark, Users, UserPlus, Pencil, Banknote, Smartphone, List } from "lucide-react";
+import { ArrowLeft, Calendar, Landmark, Users, UserPlus, Pencil, Banknote, Smartphone, List, FileText } from "lucide-react";
 import { MemberList } from "./member-list";
 
 export default async function ChamaDetailPage({
@@ -29,7 +29,7 @@ export default async function ChamaDetailPage({
 
   const { data: chama } = await supabase
     .from("chamas")
-    .select("*")
+    .select("name, founding_date, meeting_day, meeting_frequency, contribution_amount, objective, bank_account, mpesa_number, constitution_url, constitution_name")
     .eq("id", chamaId)
     .single();
 
@@ -146,6 +146,19 @@ export default async function ChamaDetailPage({
                     <span>{chama.mpesa_number}</span>
                   </div>
                 )}
+              </div>
+            )}
+            {chama.constitution_url && (
+              <div className="mt-4 border-t pt-4">
+                <a
+                  href={chama.constitution_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-primary underline hover:no-underline"
+                >
+                  <FileText className="size-4" />
+                  View {chama.constitution_name || "Constitution"} (PDF)
+                </a>
               </div>
             )}
           </CardContent>
