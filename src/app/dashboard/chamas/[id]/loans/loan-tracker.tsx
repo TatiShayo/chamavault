@@ -294,8 +294,8 @@ export function LoanTracker({
         </TabsList>
 
         <TabsContent value="active">
-          <div className="overflow-hidden rounded-lg border bg-white dark:bg-zinc-900">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-lg border bg-white dark:bg-zinc-900">
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="px-4 py-2.5 text-left font-medium">Member</th>
@@ -382,8 +382,8 @@ export function LoanTracker({
         </TabsContent>
 
         <TabsContent value="applications">
-          <div className="overflow-hidden rounded-lg border bg-white dark:bg-zinc-900">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-lg border bg-white dark:bg-zinc-900">
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="px-4 py-2.5 text-left font-medium">Member</th>
@@ -473,8 +473,8 @@ export function LoanTracker({
         </TabsContent>
 
         <TabsContent value="history">
-          <div className="overflow-hidden rounded-lg border bg-white dark:bg-zinc-900">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-lg border bg-white dark:bg-zinc-900">
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="px-4 py-2.5 text-left font-medium">Member</th>

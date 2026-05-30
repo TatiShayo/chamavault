@@ -174,8 +174,8 @@ export function ExpenseTracker({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border bg-white dark:bg-zinc-900">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-lg border bg-white dark:bg-zinc-900">
+        <table className="w-full min-w-[600px] text-sm">
           <thead>
             <tr className="border-b bg-muted/50">
               <th className="px-4 py-2.5 text-left font-medium">Date</th>
