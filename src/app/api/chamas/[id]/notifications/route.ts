@@ -6,6 +6,12 @@ import {
   sendMeetingReminder,
   sendLoanApprovalEmail,
 } from "@/lib/email";
+import {
+  sendSms,
+  contributionSmsTemplate,
+  meetingSmsTemplate,
+  loanApprovalSmsTemplate,
+} from "@/lib/sms";
 
 async function getMemberEmail(userId: string): Promise<string | null> {
   try {
@@ -62,7 +68,7 @@ export async function POST(
 
   const { data: member } = await supabase
     .from("chama_members")
-    .select("id, user_id, full_name")
+    .select("id, user_id, full_name, phone")
     .eq("id", memberId)
     .eq("chama_id", chamaId)
     .single();
@@ -76,34 +82,46 @@ export async function POST(
   }
 
   const email = await getMemberEmail(member.user_id);
-  if (!email) {
-    return NextResponse.json({ error: "No email found for this member" }, { status: 400 });
+  const phone = (member as Record<string, unknown>).phone as string | undefined;
+
+  if (!email && !phone) {
+    return NextResponse.json({ error: "No email or phone found for this member" }, { status: 400 });
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const chamaLink = `${siteUrl}/dashboard/chamas/${chamaId}`;
 
-  const result: { success?: boolean; error?: string; skipped?: boolean } = {};
+  const result: Record<string, unknown> = {};
 
   if (type === "contribution") {
     if (!monthLabel) {
       return NextResponse.json({ error: "monthLabel is required for contribution reminder" }, { status: 400 });
     }
 
-    const res = await sendContributionReminder({
-      to: email,
-      memberName: member.full_name,
-      chamaName: chama.name,
-      amountKES: chama.contribution_amount,
-      monthLabel,
-      chamaLink,
-    });
-
-    if (res.error) {
-      return NextResponse.json({ error: "Failed to send contribution reminder" }, { status: 500 });
+    if (email) {
+      const res = await sendContributionReminder({
+        to: email,
+        memberName: member.full_name,
+        chamaName: chama.name,
+        amountKES: chama.contribution_amount,
+        monthLabel,
+        chamaLink,
+      });
+      result.email = res.error ? { error: res.error } : { sent: true };
     }
 
-    result.success = true;
+    if (phone) {
+      const smsRes = await sendSms({
+        to: phone,
+        message: contributionSmsTemplate({
+          memberName: member.full_name,
+          chamaName: chama.name,
+          amountKES: chama.contribution_amount,
+          monthLabel,
+        }),
+      });
+      result.sms = smsRes.error ? { error: smsRes.error } : { sent: true };
+    }
   } else if (type === "meeting") {
     let meetingDate: string;
     let venueVal: string | undefined;
@@ -134,21 +152,30 @@ export async function POST(
       meetingDate = `next ${dayName}`;
     }
 
-    const res = await sendMeetingReminder({
-      to: email,
-      memberName: member.full_name,
-      chamaName: chama.name,
-      meetingDate,
-      venue: venueVal,
-      agenda: agendaVal,
-      chamaLink: `${siteUrl}/dashboard/chamas/${chamaId}/meetings`,
-    });
-
-    if (res.error) {
-      return NextResponse.json({ error: "Failed to send meeting reminder" }, { status: 500 });
+    if (email) {
+      const res = await sendMeetingReminder({
+        to: email,
+        memberName: member.full_name,
+        chamaName: chama.name,
+        meetingDate,
+        venue: venueVal,
+        agenda: agendaVal,
+        chamaLink: `${siteUrl}/dashboard/chamas/${chamaId}/meetings`,
+      });
+      result.email = res.error ? { error: res.error } : { sent: true };
     }
 
-    result.success = true;
+    if (phone) {
+      const smsRes = await sendSms({
+        to: phone,
+        message: meetingSmsTemplate({
+          memberName: member.full_name,
+          chamaName: chama.name,
+          meetingDate,
+        }),
+      });
+      result.sms = smsRes.error ? { error: smsRes.error } : { sent: true };
+    }
   } else if (type === "loan_approval") {
     if (!loanId) {
       return NextResponse.json({ error: "loanId is required for loan approval notification" }, { status: 400 });
@@ -173,24 +200,33 @@ export async function POST(
         })
       : undefined;
 
-    const res = await sendLoanApprovalEmail({
-      to: email,
-      memberName: member.full_name,
-      chamaName: chama.name,
-      amountKES: Number(loan.amount),
-      interestRate: Number(loan.interest_rate || 10),
-      dueDate: dueDateStr,
-      chamaLink: `${siteUrl}/dashboard/chamas/${chamaId}/loans`,
-    });
-
-    if (res.error) {
-      return NextResponse.json({ error: "Failed to send loan approval email" }, { status: 500 });
+    if (email) {
+      const res = await sendLoanApprovalEmail({
+        to: email,
+        memberName: member.full_name,
+        chamaName: chama.name,
+        amountKES: Number(loan.amount),
+        interestRate: Number(loan.interest_rate || 10),
+        dueDate: dueDateStr,
+        chamaLink: `${siteUrl}/dashboard/chamas/${chamaId}/loans`,
+      });
+      result.email = res.error ? { error: res.error } : { sent: true };
     }
 
-    result.success = true;
+    if (phone) {
+      const smsRes = await sendSms({
+        to: phone,
+        message: loanApprovalSmsTemplate({
+          memberName: member.full_name,
+          chamaName: chama.name,
+          amountKES: Number(loan.amount),
+        }),
+      });
+      result.sms = smsRes.error ? { error: smsRes.error } : { sent: true };
+    }
   } else {
     return NextResponse.json({ error: `Unknown notification type: ${type}` }, { status: 400 });
   }
 
-  return NextResponse.json(result);
+  return NextResponse.json({ success: true, result });
 }
