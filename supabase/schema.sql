@@ -99,6 +99,22 @@ create table if not exists expenses (
   created_at timestamptz default now()
 );
 
+-- Investments (property, stock, business tracked by the chama)
+create table if not exists investments (
+  id uuid primary key default uuid_generate_v4(),
+  chama_id uuid not null references chamas(id) on delete cascade,
+  name text not null,
+  investment_type text not null, -- property, stock, business
+  description text,
+  purchase_date date,
+  cost numeric not null default 0,
+  current_value numeric not null default 0,
+  notes text,
+  created_by uuid references auth.users(id),
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
 -- Dividend distributions
 create table if not exists dividends (
   id uuid primary key default uuid_generate_v4(),
@@ -179,6 +195,7 @@ create index if not exists idx_votes_chama on votes(chama_id);
 create index if not exists idx_fines_member on fines(member_id);
 create index if not exists idx_invitations_token on invitations(token);
 create index if not exists idx_invitations_chama on invitations(chama_id);
+create index if not exists idx_investments_chama on investments(chama_id);
 
 -- ============================================================
 -- ROW LEVEL SECURITY
@@ -196,6 +213,7 @@ alter table meetings enable row level security;
 alter table meeting_attendance enable row level security;
 alter table votes enable row level security;
 alter table vote_records enable row level security;
+alter table investments enable row level security;
 
 -- Helper function: get chamas where the current user is a member
 create or replace function user_chama_ids()
@@ -419,6 +437,23 @@ create policy "Officers can manage invitations"
 create policy "Anyone can read invitation by token"
   on invitations for select
   using (status = 'pending' and expires_at > now());
+
+-- INVESTMENTS policies
+create policy "Members can view investments in their chamas"
+  on investments for select
+  using (chama_id in (select user_chama_ids()));
+
+create policy "Officers can manage investments"
+  on investments for insert
+  with check (is_chama_officer(chama_id));
+
+create policy "Officers can update investments"
+  on investments for update
+  using (is_chama_officer(chama_id));
+
+create policy "Officers can delete investments"
+  on investments for delete
+  using (is_chama_officer(chama_id));
 
 -- ============================================================
 -- SEED DATA: Demo chama "Wema Savings Group"

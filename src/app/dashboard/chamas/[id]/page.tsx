@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Landmark, Users, UserPlus, Pencil, Banknote, Smartphone, List, FileText } from "lucide-react";
+import { ArrowLeft, Calendar, Landmark, Users, UserPlus, Pencil, Banknote, Smartphone, List, FileText, TrendingUp } from "lucide-react";
 import { MemberList } from "./member-list";
 
 export default async function ChamaDetailPage({
@@ -231,6 +231,13 @@ export default async function ChamaDetailPage({
             >
               <List className="size-3.5" />
               <span className="hidden sm:inline">Votes</span>
+            </Link>
+            <Link
+              href={`/dashboard/chamas/${chamaId}/investments`}
+              className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
+            >
+              <TrendingUp className="size-3.5" />
+              <span className="hidden sm:inline">Investments</span>
             </Link>
             {["chairperson", "treasurer", "secretary"].includes(membership.role) && (
               <Link
