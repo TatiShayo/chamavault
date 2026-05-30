@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { DividendCalculator } from "./dividend-calculator";
 import { MonthlyStatement } from "./monthly-statement";
+import { AnnualReport } from "./annual-report";
 
 export default async function ReportsPage({
   params,
@@ -78,6 +79,12 @@ export default async function ReportsPage({
           ).data || []}
           isOfficer={isOfficer}
         />
+
+        <div className="my-8 border-t" />
+
+        <h3 className="mb-4 text-lg font-semibold">Annual Report</h3>
+
+        <AnnualReport chamaId={chamaId} isOfficer={isOfficer} />
 
         <div className="my-8 border-t" />
 

@@ -97,12 +97,25 @@ const styles = StyleSheet.create({
     color: "#a1a1aa",
     textAlign: "center",
   },
-  statusBadge: {
-    fontSize: 9,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+  signatureBlock: {
+    marginTop: 48,
+    borderTop: "1 solid #18181b",
+    paddingTop: 4,
+    width: "45%",
+    fontSize: 10,
+    textAlign: "center",
   },
+  signatureLabel: {
+    fontSize: 9,
+    color: "#71717a",
+    marginTop: 2,
+  },
+  colMonth: { width: "25%" },
+  colDue: { width: "18%", textAlign: "right" },
+  colPaid: { width: "18%", textAlign: "right" },
+  colBalance: { width: "18%", textAlign: "right" },
+  colStatus: { width: "21%", textAlign: "right" },
+  th: { fontWeight: 700, fontSize: 9 },
 });
 
 interface ContributionRow {
@@ -128,6 +141,8 @@ interface MemberStatementData {
   contributions: ContributionRow[];
   totalPaid: number;
   totalDue: number;
+  totalEquity: number;
+  treasurerName: string;
   loans: LoanRow[];
   totalLoanOutstanding: number;
   fines: { reason: string; amount: number; paid: boolean }[];
@@ -155,13 +170,13 @@ export function MemberStatementPDF({ data }: { data: MemberStatementData }) {
           <View style={styles.row}>
             <Text style={styles.label}>Monthly Contribution</Text>
             <Text style={styles.value}>
-              KES {data.contributionAmount.toLocaleString()}
+              KES {new Intl.NumberFormat("en-KE").format(data.contributionAmount)}
             </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Total Paid ({paidCount} months)</Text>
             <Text style={styles.paid}>
-              KES {data.totalPaid.toLocaleString()}
+              KES {new Intl.NumberFormat("en-KE").format(data.totalPaid)}
             </Text>
           </View>
           <View style={styles.row}>
@@ -169,14 +184,22 @@ export function MemberStatementPDF({ data }: { data: MemberStatementData }) {
               Outstanding ({overdueCount} overdue)
             </Text>
             <Text style={styles.overdue}>
-              KES {(data.totalDue - data.totalPaid).toLocaleString()}
+              KES {new Intl.NumberFormat("en-KE").format(data.totalDue - data.totalPaid)}
             </Text>
           </View>
+          {data.totalEquity > 0 && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Total Equity</Text>
+              <Text style={styles.value}>
+                KES {new Intl.NumberFormat("en-KE").format(data.totalEquity)}
+              </Text>
+            </View>
+          )}
           {data.totalLoanOutstanding > 0 && (
             <View style={styles.row}>
               <Text style={styles.label}>Active Loans</Text>
               <Text style={styles.value}>
-                KES {data.totalLoanOutstanding.toLocaleString()}
+                KES {new Intl.NumberFormat("en-KE").format(data.totalLoanOutstanding)}
               </Text>
             </View>
           )}
@@ -184,7 +207,7 @@ export function MemberStatementPDF({ data }: { data: MemberStatementData }) {
             <View style={styles.row}>
               <Text style={styles.label}>Unpaid Fines</Text>
               <Text style={styles.overdue}>
-                KES {data.totalUnpaidFines.toLocaleString()}
+                KES {new Intl.NumberFormat("en-KE").format(data.totalUnpaidFines)}
               </Text>
             </View>
           )}
@@ -192,29 +215,27 @@ export function MemberStatementPDF({ data }: { data: MemberStatementData }) {
 
         {/* Contributions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Contributions</Text>
+          <Text style={styles.sectionTitle}>Contribution History</Text>
+          <View style={[styles.row, { borderBottom: "1 solid #e4e4e7", paddingBottom: 4, marginBottom: 4 }]}>
+            <Text style={[styles.colMonth, styles.th]}>Month</Text>
+            <Text style={[styles.colDue, styles.th]}>Due</Text>
+            <Text style={[styles.colPaid, styles.th]}>Paid</Text>
+            <Text style={[styles.colBalance, styles.th]}>Balance</Text>
+            <Text style={[styles.colStatus, styles.th]}>Status</Text>
+          </View>
           {data.contributions.slice(0, 24).map((c, i) => {
             const rowStyle = i % 2 === 0 ? styles.row : styles.rowAlt;
+            const balance = c.amountDue - c.amountPaid;
             return (
               <View key={c.monthYear} style={rowStyle}>
-                <Text style={styles.label}>{c.monthYear}</Text>
-                <Text style={styles.label}>
-                  KES {c.amountPaid.toLocaleString()} of {c.amountDue.toLocaleString()}
+                <Text style={styles.colMonth}>{c.monthYear}</Text>
+                <Text style={styles.colDue}>{new Intl.NumberFormat("en-KE").format(c.amountDue)}</Text>
+                <Text style={styles.colPaid}>{new Intl.NumberFormat("en-KE").format(c.amountPaid)}</Text>
+                <Text style={[styles.colBalance, balance > 0 ? styles.overdue : styles.paid]}>
+                  {new Intl.NumberFormat("en-KE").format(balance)}
                 </Text>
-                <Text
-                  style={
-                    c.status === "paid"
-                      ? styles.paid
-                      : c.status === "overdue"
-                        ? styles.overdue
-                        : styles.label
-                  }
-                >
-                  {c.status === "paid"
-                    ? "Paid"
-                    : c.status === "overdue"
-                      ? "Overdue"
-                      : "Pending"}
+                <Text style={[styles.colStatus, c.status === "paid" ? styles.paid : c.status === "overdue" ? styles.overdue : styles.label]}>
+                  {c.status === "paid" ? "Paid" : c.status === "overdue" ? "Overdue" : "Pending"}
                 </Text>
               </View>
             );
@@ -228,22 +249,45 @@ export function MemberStatementPDF({ data }: { data: MemberStatementData }) {
             {data.loans.map((l, i) => (
               <View key={i} style={i % 2 === 0 ? styles.row : styles.rowAlt}>
                 <Text style={styles.label}>
-                  KES {l.amount.toLocaleString()} @ {l.interestRate}%
+                  KES {new Intl.NumberFormat("en-KE").format(l.amount)} @ {l.interestRate}%
                 </Text>
                 <Text style={styles.label}>
                   {l.status === "active" ? "Outstanding:" : "Repaid:"}
                 </Text>
                 <Text style={l.outstanding > 0 ? styles.overdue : styles.paid}>
-                  KES {l.outstanding.toLocaleString()}
+                  KES {new Intl.NumberFormat("en-KE").format(l.outstanding)}
                 </Text>
               </View>
             ))}
           </View>
         )}
 
+        {/* Fines */}
+        {data.fines.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Fines</Text>
+            {data.fines.map((f, i) => (
+              <View key={i} style={i % 2 === 0 ? styles.row : styles.rowAlt}>
+                <Text style={styles.label}>{f.reason}</Text>
+                <Text style={f.paid ? styles.paid : styles.overdue}>
+                  KES {new Intl.NumberFormat("en-KE").format(f.amount)}
+                </Text>
+                <Text style={f.paid ? styles.paid : styles.overdue}>
+                  {f.paid ? "Paid" : "Unpaid"}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        <View style={styles.signatureBlock}>
+          <Text>{data.treasurerName}</Text>
+          <Text style={styles.signatureLabel}>Treasurer</Text>
+        </View>
+
         <View style={styles.footer}>
           <Text>
-            Generated by ChamaVault — Simamia Chama Yako Vizuri
+            Generated on {new Date().toLocaleDateString("en-KE", { weekday: "long", year: "numeric", month: "long", day: "numeric" })} by ChamaVault — Simamia Chama Yako Vizuri
           </Text>
         </View>
       </Page>

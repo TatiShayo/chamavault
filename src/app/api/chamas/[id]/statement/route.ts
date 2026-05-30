@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import React from "react";
 import { pdf } from "@react-pdf/renderer";
 import { MemberStatementPDF } from "@/components/member-statement-pdf";
+import { getMemberEquity } from "@/lib/treasury";
 
 export async function GET(
   request: Request,
@@ -157,6 +158,17 @@ export async function GET(
     .filter((f) => !f.paid)
     .reduce((sum, f) => sum + f.amount, 0);
 
+  // Get treasurer name
+  const { data: treasurer } = await supabase
+    .from("chama_members")
+    .select("full_name")
+    .eq("chama_id", chamaId)
+    .eq("role", "treasurer")
+    .single();
+
+  // Get member equity
+  const totalEquity = await getMemberEquity(chamaId, targetMemberId);
+
   const statementData = {
     memberName: member.full_name,
     chamaName: chama.name,
@@ -165,6 +177,8 @@ export async function GET(
     contributions: contributionRows,
     totalPaid,
     totalDue,
+    totalEquity,
+    treasurerName: treasurer?.full_name || "Treasurer",
     loans: loanRows,
     totalLoanOutstanding,
     fines: fineRows,

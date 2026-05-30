@@ -3,9 +3,10 @@ export function contributionReminder(
   chamaName: string,
   amountKES: number
 ): string {
+  const fmt = new Intl.NumberFormat("en-KE").format(amountKES);
   const body = `Habari ${memberName},
 
-Hii ni ukumbusho kutoka ${chamaName}. Tafadhali lipa mchango wako wa KES ${amountKES.toLocaleString()} kabla ya mkutano ujao.
+Hii ni ukumbusho kutoka ${chamaName}. Tafadhali lipa mchango wako wa KES ${fmt} kabla ya mkutano ujao.
 
 Asante.`;
   return encodeWhatsAppLink(body);
@@ -35,9 +36,10 @@ export function fineReminder(
   amountKES: number,
   reason: string
 ): string {
+  const fmt = new Intl.NumberFormat("en-KE").format(amountKES);
   const body = `Habari ${memberName},
 
-Tunakukumbusha kulipa faini yako ya KES ${amountKES.toLocaleString()} kwa sababu ya: ${reason}.
+Tunakukumbusha kulipa faini yako ya KES ${fmt} kwa sababu ya: ${reason}.
 
 Tafadhali lipa kabla ya mkutano ujao. ${chamaName}.`;
   return encodeWhatsAppLink(body);

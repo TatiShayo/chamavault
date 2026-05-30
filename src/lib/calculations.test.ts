@@ -22,8 +22,8 @@ describe("calcTreasuryBalance", () => {
       balance: 0,
       totalContributions: 0,
       totalExpenses: 0,
-      activeLoans: 0,
-      totalRepaid: 0,
+      totalLoansDisbursed: 0,
+      totalLoanRepayments: 0,
     });
   });
 
@@ -35,8 +35,8 @@ describe("calcTreasuryBalance", () => {
       [{ amount: 400 }, { amount: 100 }]
     );
     expect(result.totalContributions).toBe(3000);
-    expect(result.totalRepaid).toBe(500);
-    expect(result.activeLoans).toBe(1500);
+    expect(result.totalLoanRepayments).toBe(500);
+    expect(result.totalLoansDisbursed).toBe(1500);
     expect(result.totalExpenses).toBe(500);
     expect(result.balance).toBe(3000 + 500 - 1500 - 500); // 1500
   });

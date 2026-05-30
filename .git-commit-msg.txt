@@ -1,0 +1,3 @@
+done: PDF generation — member statements with balance/total equity/treasurer signature, meeting minutes with chairperson & apologies, annual report button on reports page
+
+Co-authored-by: CommandCodeBot <noreply@commandcode.ai>

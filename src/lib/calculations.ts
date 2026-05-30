@@ -2,8 +2,8 @@ export interface TreasuryCalc {
   balance: number;
   totalContributions: number;
   totalExpenses: number;
-  activeLoans: number;
-  totalRepaid: number;
+  totalLoansDisbursed: number;
+  totalLoanRepayments: number;
 }
 
 export function calcTreasuryBalance(
@@ -13,12 +13,12 @@ export function calcTreasuryBalance(
   expenses: { amount: number }[]
 ): TreasuryCalc {
   const totalContributions = contributions.reduce((sum, c) => sum + c.amount_paid, 0);
-  const totalRepaid = repayments.reduce((sum, r) => sum + r.amount, 0);
-  const activeLoans = loans.reduce((sum, l) => sum + l.amount, 0);
+  const totalLoanRepayments = repayments.reduce((sum, r) => sum + r.amount, 0);
+  const totalLoansDisbursed = loans.reduce((sum, l) => sum + l.amount, 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const balance = totalContributions + totalRepaid - activeLoans - totalExpenses;
+  const balance = totalContributions + totalLoanRepayments - totalLoansDisbursed - totalExpenses;
 
-  return { balance, totalContributions, totalExpenses, activeLoans, totalRepaid };
+  return { balance, totalContributions, totalExpenses, totalLoansDisbursed, totalLoanRepayments };
 }
 
 export interface LoanCalc {

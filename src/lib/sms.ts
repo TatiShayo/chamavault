@@ -55,7 +55,8 @@ export function contributionSmsTemplate(params: {
   amountKES: number;
   monthLabel: string;
 }): string {
-  return `Habari ${params.memberName}, your contribution of KES ${params.amountKES.toLocaleString()} for ${params.monthLabel} is due for ${params.chamaName}. Please pay before the next meeting. — ChamaVault`;
+  const fmt = new Intl.NumberFormat("en-KE").format(params.amountKES);
+  return `Habari ${params.memberName}, your contribution of KES ${fmt} for ${params.monthLabel} is due for ${params.chamaName}. Please pay before the next meeting. — ChamaVault`;
 }
 
 export function meetingSmsTemplate(params: {
@@ -71,5 +72,6 @@ export function loanApprovalSmsTemplate(params: {
   chamaName: string;
   amountKES: number;
 }): string {
-  return `Habari ${params.memberName}, your loan of KES ${params.amountKES.toLocaleString()} in ${params.chamaName} has been approved. Log in to ChamaVault for details.`;
+  const fmt = new Intl.NumberFormat("en-KE").format(params.amountKES);
+  return `Habari ${params.memberName}, your loan of KES ${fmt} in ${params.chamaName} has been approved. Log in to ChamaVault for details.`;
 }

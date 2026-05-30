@@ -1,15 +1,15 @@
 You are a senior fullstack engineer. Continue building chamavault autonomously.
 
 SESSION STATE:
-Tasks remaining: 3
-Tasks completed: 30
-Current phase: PHASE 8: ADVANCED
+Tasks remaining: 62
+Tasks completed: 47
+Current phase: PHASE 9: PDF GENERATION — STATEMENTS & MINUTES
 Recent commits:
+1b91dba done: SMS reminders — Africa's Talking integration, SMS templates, dual email+SMS in notifications route
+c489fc0 done: public chama page — /c/[id] read-only, share button on dashboard, public URL in invitation response
+05a36ad done: multi-chama — auto-redirect single chama, ordered memberships, inline create card
 90dcf8a done: investment tracker — investments table, CRUD API, dashboard page with cost/value/gain cards, nav link
 85f34ed done: chama constitution — PDF upload/delete via edit form, view on dashboard
-2f48fea done: unit tests — fixed getMonthsFromFounding timezone bug, dividend rounding with remainder distribution, all 45 tests pass
-b42e663 done: mobile-first CSS — responsive table overflow, viewport export, 360px support
-7eee895 chore: pre-task cleanup — lockfile, progress, session state
 
 KNOWN ISSUES FROM PREVIOUS SESSIONS:
 # ChamaVault Learnings & Known Issues
@@ -111,5 +111,5 @@ Search the web if stuck on an error.
 
 Build exactly to the PRODUCT SPECIFICATION above. Every page, feature, and design detail must match.
 
-You have 3 tasks remaining. Complete as many as possible before context runs out.
+You have 62 tasks remaining. Complete as many as possible before context runs out.
 Start now. First task. Go.

@@ -188,12 +188,12 @@ export default async function ChamaDetailPage({
               <p className="font-semibold">{formatKES(treasury.totalExpenses)}</p>
             </div>
             <div>
-              <p className="text-white/70">Active Loans</p>
-              <p className="font-semibold">{formatKES(treasury.activeLoans)}</p>
+              <p className="text-white/70">Loans Disbursed</p>
+              <p className="font-semibold">{formatKES(treasury.totalLoansDisbursed)}</p>
             </div>
             <div>
-              <p className="text-white/70">Repaid</p>
-              <p className="font-semibold">{formatKES(treasury.totalRepaid)}</p>
+              <p className="text-white/70">Repayments</p>
+              <p className="font-semibold">{formatKES(treasury.totalLoanRepayments)}</p>
             </div>
           </div>
         </div>

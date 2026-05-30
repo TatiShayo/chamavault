@@ -90,7 +90,7 @@ export async function sendContributionReminder({
     html: emailCard(`
       <h1 style="color: #18181b;">Contribution Reminder</h1>
       <p>Habari <strong>${memberName}</strong>,</p>
-      <p>This is a reminder that your contribution of <strong>KES ${amountKES.toLocaleString()}</strong> for <strong>${monthLabel}</strong> is due for <strong>${chamaName}</strong>.</p>
+      <p>This is a reminder that your contribution of <strong>KES ${new Intl.NumberFormat("en-KE").format(amountKES)}</strong> for <strong>${monthLabel}</strong> is due for <strong>${chamaName}</strong>.</p>
       <p>Please make your payment before the next meeting.</p>
       ${emailButton("View Chama", chamaLink)}
       <p style="color: #71717a; font-size: 12px;">Simamia Chama Yako Vizuri — ChamaVault</p>
@@ -189,15 +189,15 @@ export async function sendLoanApprovalEmail({
   const { data, error } = await resend.emails.send({
     from: "ChamaVault <noreply@chamavault.com>",
     to,
-    subject: `Loan Approved: ${chamaName} — KES ${amountKES.toLocaleString()}`,
+    subject: `Loan Approved: ${chamaName} — KES ${new Intl.NumberFormat("en-KE").format(amountKES)}`,
     html: emailCard(`
       <h1 style="color: #18181b;">Loan Approved! ✅</h1>
       <p>Habari <strong>${memberName}</strong>,</p>
       <p>Your loan application in <strong>${chamaName}</strong> has been approved.</p>
       <div style="background: #fef3c7; border-radius: 8px; padding: 16px; margin: 16px 0;">
-        <p style="margin: 0 0 4px;"><strong>Amount:</strong> KES ${amountKES.toLocaleString()}</p>
+        <p style="margin: 0 0 4px;"><strong>Amount:</strong> KES ${new Intl.NumberFormat("en-KE").format(amountKES)}</p>
         <p style="margin: 0 0 4px;"><strong>Interest Rate:</strong> ${interestRate}%</p>
-        <p style="margin: 0 0 4px;"><strong>Total Due:</strong> KES ${totalDue.toLocaleString()}</p>
+        <p style="margin: 0 0 4px;"><strong>Total Due:</strong> KES ${new Intl.NumberFormat("en-KE").format(totalDue)}</p>
         ${dueLine}
       </div>
       ${emailButton("View Loan", chamaLink)}
