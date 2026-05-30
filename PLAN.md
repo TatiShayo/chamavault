@@ -26,9 +26,9 @@
 - [x] Dividend distribution: record that dividends were paid out to each member
 
 ## PHASE 5: MEETINGS & GOVERNANCE
-- [ ] Meeting scheduler: create meeting (date, agenda, venue)
-- [ ] Attendance register: check off members present/absent per meeting
-- [ ] Meeting minutes: textarea to record minutes, PDF export
+- [x] Meeting scheduler: create meeting (date, agenda, venue)
+- [x] Attendance register: check off members present/absent per meeting
+- [x] Meeting minutes: textarea to record minutes, PDF export
 - [ ] Voting: create a resolution, members vote yes/no, results recorded
 
 ## PHASE 6: COMMUNICATION
