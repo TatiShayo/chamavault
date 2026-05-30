@@ -29,7 +29,7 @@
 - [x] Meeting scheduler: create meeting (date, agenda, venue)
 - [x] Attendance register: check off members present/absent per meeting
 - [x] Meeting minutes: textarea to record minutes, PDF export
-- [ ] Voting: create a resolution, members vote yes/no, results recorded
+- [x] Voting: create a resolution, members vote yes/no, results recorded
 
 ## PHASE 6: COMMUNICATION
 - [ ] WhatsApp reminders: generate wa.me link with contribution reminder message per member

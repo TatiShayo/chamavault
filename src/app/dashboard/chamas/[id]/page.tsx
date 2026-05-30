@@ -54,7 +54,7 @@ export default async function ChamaDetailPage({
 
   const { data: members } = await supabase
     .from("chama_members")
-    .select("id, user_id, full_name, role, joined_at")
+    .select("id, user_id, full_name, role, joined_at, phone")
     .eq("chama_id", chamaId)
     .order("joined_at", { ascending: true });
 
@@ -245,10 +245,17 @@ export default async function ChamaDetailPage({
         <MemberList
           chamaId={chamaId}
           members={(members || []).map((m) => ({
-            ...m,
+            id: m.id,
+            user_id: m.user_id,
+            full_name: m.full_name,
+            role: m.role,
             joined_at: m.joined_at,
+            phone: (m as Record<string, string>).phone || "",
           }))}
           currentUserRole={membership.role}
+          chamaName={chama.name}
+          contributionAmount={chama.contribution_amount}
+          meetingDay={chama.meeting_day}
         />
       </main>
     </div>

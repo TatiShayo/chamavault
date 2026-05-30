@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -10,6 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { MessageCircle } from "lucide-react";
+import { contributionReminder, meetingReminder } from "@/lib/whatsapp";
 
 interface Member {
   id: string;
@@ -17,6 +20,7 @@ interface Member {
   full_name: string;
   role: string;
   joined_at: string;
+  phone: string;
 }
 
 const roleColors: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
@@ -30,10 +34,16 @@ export function MemberList({
   chamaId,
   members: initialMembers,
   currentUserRole,
+  chamaName,
+  contributionAmount,
+  meetingDay,
 }: {
   chamaId: string;
   members: Member[];
   currentUserRole: string;
+  chamaName: string;
+  contributionAmount: number;
+  meetingDay: string;
 }) {
   const [members, setMembers] = useState(initialMembers);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -62,6 +72,16 @@ export function MemberList({
     } finally {
       setUpdating(null);
     }
+  };
+
+  const handleWhatsAppContribution = (member: Member) => {
+    const link = contributionReminder(member.full_name, chamaName, contributionAmount);
+    window.open(link, "_blank");
+  };
+
+  const handleWhatsAppMeeting = (member: Member) => {
+    const link = meetingReminder(member.full_name, chamaName, meetingDay);
+    window.open(link, "_blank");
   };
 
   return (
@@ -94,41 +114,65 @@ export function MemberList({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {isOfficer && currentUserRole === "chairperson" ? (
-                  <Select
-                    value={member.role}
-                    onValueChange={(v) => { if (v) handleRoleChange(member.id, v); }}
-                    disabled={updating === member.id}
-                  >
-                    <SelectTrigger size="sm" className="h-7 text-xs min-w-[120px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="chairperson">Chairperson</SelectItem>
-                      <SelectItem value="treasurer">Treasurer</SelectItem>
-                      <SelectItem value="secretary">Secretary</SelectItem>
-                      <SelectItem value="member">Member</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : isOfficer && (currentUserRole === "treasurer" || currentUserRole === "secretary") ? (
-                  <Select
-                    value={member.role}
-                    onValueChange={(v) => { if (v) handleRoleChange(member.id, v); }}
-                    disabled={updating === member.id}
-                  >
-                    <SelectTrigger size="sm" className="h-7 text-xs min-w-[120px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="secretary">Secretary</SelectItem>
-                      <SelectItem value="member">Member</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Badge variant={roleColors[member.role] || "secondary"} className="capitalize">
-                    {member.role}
-                  </Badge>
+                {isOfficer && (
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                      title="Send contribution reminder"
+                      onClick={() => handleWhatsAppContribution(member)}
+                    >
+                      <MessageCircle className="size-3.5" />
+                    </Button>
+                  </div>
                 )}
+                <div className="flex items-center gap-2">
+                  {isOfficer && currentUserRole === "chairperson" ? (
+                    <Select
+                      value={member.role}
+                      onValueChange={(v) => {
+                        if (v) handleRoleChange(member.id, v);
+                      }}
+                      disabled={updating === member.id}
+                    >
+                      <SelectTrigger size="sm" className="h-7 text-xs min-w-[120px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="chairperson">Chairperson</SelectItem>
+                        <SelectItem value="treasurer">Treasurer</SelectItem>
+                        <SelectItem value="secretary">Secretary</SelectItem>
+                        <SelectItem value="member">Member</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : isOfficer &&
+                    (currentUserRole === "treasurer" ||
+                      currentUserRole === "secretary") ? (
+                    <Select
+                      value={member.role}
+                      onValueChange={(v) => {
+                        if (v) handleRoleChange(member.id, v);
+                      }}
+                      disabled={updating === member.id}
+                    >
+                      <SelectTrigger size="sm" className="h-7 text-xs min-w-[120px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="secretary">Secretary</SelectItem>
+                        <SelectItem value="member">Member</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge
+                      variant={roleColors[member.role] || "secondary"}
+                      className="capitalize"
+                    >
+                      {member.role}
+                    </Badge>
+                  )}
+                </div>
                 {updating === member.id && (
                   <span className="text-xs text-muted-foreground">Saving...</span>
                 )}

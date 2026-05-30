@@ -1,52 +1,45 @@
-You are continuing ChamaVault. 12 of 33 tasks done.
+You are continuing ChamaVault. Massive progress — loans, dividends, meetings, voting all built.
 
 ═══ CURRENT STATE ═══
-PHASE 3: FINANCIAL MANAGEMENT — CORE (in progress)
-Uncommitted work: expenses page exists but needs commit.
-
-═══ FIRST: COMMIT EXISTING WORK ═══
-Run: git status --short
-If expenses files are untracked/uncommitted:
-  git add -A && git commit -m "done: expense logging with receipts and categories"
-Then read PLAN.md and mark [x] for:
-- [ ] Expense log (if it's built)
-- [ ] Fine management (if it's already done — there's a file at fines/)
-Then re-count: grep -c '\[x\]' PLAN.md — should be 14.
+21 of 33 tasks done. 12 remaining.
+PHASE 4: complete
+PHASE 5: MEETINGS & GOVERNANCE — complete
+PHASE 6: COMMUNICATION — 2 left (WhatsApp, email)
+PHASE 7: TESTING & POLISH — 3 left (PDF, mobile, Swahili, tests, lighthouse)
+PHASE 8: ADVANCED — 6 left
 
 ═══ REMAINING TASKS (build in order) ═══
 
-Task 1: Loan system at /dashboard/[chamaId]/loans
-- Create page if not exists (check first)
-- Tabs: Active Loans | Applications | Repayments | History
-- Active loans table: member, amount, disbursed date, due date, interest rate, total repaid, outstanding, status badge
-- Application form: member selector, amount (validate ≤ contributions × 3), purpose, dates, interest rate (default 10%)
-- Approve/Reject buttons
-- Record repayment modal: loan selector, amount, date, method
+Task 1: WhatsApp reminders
+- Check if src/lib/whatsapp.ts exists. If so, check if member phone is being fetched.
+- Update MemberList component to pass chama data (name, contribution_amount, meeting_day)
+- Add WhatsApp button per member: wa.me link with Kiswahili message
+- Message: "Ndugu [name], tunakukumbusha mchango wa [chama] kwa mwezi huu. Kiasi: KES [amount]. Tafadhali lipa mapema."
+- Add contribution reminder button on contributions page per member
 
-Task 2: Dividend calculator at /dashboard/[chamaId]/reports
-- Select year, calculate distributable profit
-- Each member's share = (member_units / total_units) × profit
-- Preview table, "Distribute" button
+Task 2: Email notifications
+- /api/cron/send-reminders: query contributions due, meetings upcoming, loans pending
+- Send via Resend with appropriate template
+- Guard if RESEND_API_KEY not set
 
-Task 3: Meeting management at /dashboard/[chamaId]/meetings
-- List of past/upcoming meetings
-- Create meeting: date, agenda, venue
-- Meeting detail: attendance checklist, minutes editor
-- "Generate Minutes with AI" button → /api/ai/minutes
+Task 3: Monthly PDF statement per member
+- /api/statements/[memberId]: @react-pdf/renderer PDF with contribution history, loans, fines, balance
+- Download button on member detail page
 
-Task 4: Voting system
-- Create resolution: title, description, deadline
-- Yes/No/Abstain per member
-- Live results with bars
+Task 4: Mobile-first CSS
+- Test at 360px: tables become cards, sidebar becomes bottom nav
+- Contribution matrix: horizontal scroll, sticky name column
 
-Task 5: WhatsApp reminder links
-- wa.me link per member for contribution/meeting reminders
-- src/lib/whatsapp.ts with pre-filled Kiswahili messages
+Task 5: Swahili language option
+- src/lib/i18n.ts with key-value map
+- Settings toggle: English/Swahili
+- Apply to key UI labels
 
-Task 6: PDF monthly statements
-- /api/statements/[memberId] → @react-pdf/renderer PDF
-- Download button on member detail
+Task 6: Unit tests: contribution calc, loan balance, dividend splits
+Task 7: Lighthouse ≥85
 
 ═══ RULES ═══
-Start: git status → commit → update PLAN.md → start Task 1 (loans)
-npm run build after every task. git commit per task. Mark [x] in PLAN.md. Skip after 2 failures.
+npm run build after every task. git add -A && git commit -m "done: [task]".
+Mark [x] in PLAN.md + PROGRESS.md. Skip after 2 failures.
+
+Start: git status → commit any uncommitted → Task 1: WhatsApp reminders.
