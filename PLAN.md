@@ -32,7 +32,7 @@
 - [x] Voting: create a resolution, members vote yes/no, results recorded
 
 ## PHASE 6: COMMUNICATION
-- [ ] WhatsApp reminders: generate wa.me link with contribution reminder message per member
+- [x] WhatsApp reminders: generate wa.me link with contribution reminder message per member
 - [ ] Email notifications: contribution due reminder, meeting reminder, loan approval notice
 - [ ] Monthly statement: PDF statement per member showing their contributions, loans, balance
 

@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+import { sendLoanApprovalEmail } from "@/lib/email";
 
 export async function GET(
   request: Request,
@@ -258,6 +260,59 @@ export async function PATCH(
 
     if (updateError) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
+
+    // Send email notification on approval
+    if (action === "approve") {
+      try {
+        const supabaseAdmin = createAdminClient();
+        const { data: loanRecord } = await supabaseAdmin
+          .from("loans")
+          .select("member_id, amount, interest_rate, due_date")
+          .eq("id", loanId)
+          .single();
+
+        if (loanRecord) {
+          const { data: memberRecord } = await supabaseAdmin
+            .from("chama_members")
+            .select("user_id, full_name")
+            .eq("id", loanRecord.member_id)
+            .single();
+
+          if (memberRecord?.user_id) {
+            const { data: userData } = await supabaseAdmin.auth.admin.getUserById(memberRecord.user_id);
+            const email = userData?.user?.email;
+            if (email) {
+              const { data: chamaRecord } = await supabaseAdmin
+                .from("chamas")
+                .select("name")
+                .eq("id", chamaId)
+                .single();
+
+              const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+              const dueDateStr = loanRecord.due_date
+                ? new Date(loanRecord.due_date as string).toLocaleDateString("en-KE", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                : undefined;
+
+              sendLoanApprovalEmail({
+                to: email,
+                memberName: memberRecord.full_name,
+                chamaName: chamaRecord?.name || "Chama",
+                amountKES: Number(loanRecord.amount),
+                interestRate: Number(loanRecord.interest_rate || 10),
+                dueDate: dueDateStr,
+                chamaLink: `${siteUrl}/dashboard/chamas/${chamaId}/loans`,
+              }).catch((e) => console.error("Loan approval email failed:", e));
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Loan approval email error:", e);
+      }
     }
 
     return NextResponse.json({ success: true, status: newStatus });

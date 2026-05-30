@@ -11,8 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { MessageCircle } from "lucide-react";
+import { Mail, MessageCircle } from "lucide-react";
 import { contributionReminder, meetingReminder } from "@/lib/whatsapp";
+import { toast } from "sonner";
 
 interface Member {
   id: string;
@@ -84,6 +85,55 @@ export function MemberList({
     window.open(link, "_blank");
   };
 
+  const handleEmailContribution = async (member: Member) => {
+    const now = new Date();
+    const monthLabel = now.toLocaleDateString("en-KE", { month: "long", year: "numeric" });
+
+    try {
+      const res = await fetch(`/api/chamas/${chamaId}/notifications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "contribution",
+          memberId: member.id,
+          monthLabel,
+        }),
+      });
+
+      const body = await res.json();
+      if (res.ok) {
+        toast.success(`Contribution reminder emailed to ${member.full_name}`);
+      } else {
+        toast.error(body.error || "Failed to send email");
+      }
+    } catch {
+      toast.error("Failed to send email");
+    }
+  };
+
+  const handleEmailMeeting = async (member: Member) => {
+    try {
+      const res = await fetch(`/api/chamas/${chamaId}/notifications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "meeting",
+          memberId: member.id,
+          meetingId: "latest",
+        }),
+      });
+
+      const body = await res.json();
+      if (res.ok) {
+        toast.success(`Meeting reminder emailed to ${member.full_name}`);
+      } else {
+        toast.error(body.error || "Failed to send email");
+      }
+    } catch {
+      toast.error("Failed to send email");
+    }
+  };
+
   return (
     <Card>
       <CardContent className="p-0">
@@ -120,10 +170,19 @@ export function MemberList({
                       variant="ghost"
                       size="icon-xs"
                       className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
-                      title="Send contribution reminder"
+                      title="Send WhatsApp contribution reminder"
                       onClick={() => handleWhatsAppContribution(member)}
                     >
                       <MessageCircle className="size-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                      title="Send email contribution reminder"
+                      onClick={() => handleEmailContribution(member)}
+                    >
+                      <Mail className="size-3.5" />
                     </Button>
                   </div>
                 )}
