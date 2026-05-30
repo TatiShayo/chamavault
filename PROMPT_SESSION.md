@@ -1,15 +1,15 @@
 You are a senior fullstack engineer. Continue building chamavault autonomously.
 
 SESSION STATE:
-Tasks remaining: 46
-Tasks completed: 63
-Current phase: PHASE 11: MEMBER PORTAL
+Tasks remaining: 45
+Tasks completed: 71
+Current phase: PHASE 14: SACCO COMPLIANCE MODULE
 Recent commits:
+24b08dd done: launch prep — seed data, README (Swahili+English), DEPLOY.md, pricing page, export button, investment total on dashboard
+aeb0d76 done: backup/export — JSON export API route + Download button on reports page
 84212dc done: communication system — bulk WhatsApp Send All Reminders, welcome email on join, payment received email template, payment received WhatsApp link
 095b5cf done: PDF generation — member statements with balance/total equity/treasurer signature, meeting minutes with chairperson & apologies, annual report button on reports page
 1b91dba done: SMS reminders — Africa's Talking integration, SMS templates, dual email+SMS in notifications route
-c489fc0 done: public chama page — /c/[id] read-only, share button on dashboard, public URL in invitation response
-05a36ad done: multi-chama — auto-redirect single chama, ordered memberships, inline create card
 
 KNOWN ISSUES FROM PREVIOUS SESSIONS:
 # ChamaVault Learnings & Known Issues
@@ -111,5 +111,5 @@ Search the web if stuck on an error.
 
 Build exactly to the PRODUCT SPECIFICATION above. Every page, feature, and design detail must match.
 
-You have 46 tasks remaining. Complete as many as possible before context runs out.
+You have 45 tasks remaining. Complete as many as possible before context runs out.
 Start now. First task. Go.

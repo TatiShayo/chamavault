@@ -100,3 +100,61 @@
 - [x] README.md in Swahili + English
 - [x] DEPLOY.md with step-by-step Vercel + Supabase setup
 - [x] Pricing page: KES 500/1000/2000 plans with Stripe checkout in KES currency
+
+
+## PHASE 14: SACCO COMPLIANCE MODULE
+- [x] Research Kenya Sacco Societies Regulatory Authority (SASRA) requirements — document in src/lib/sasra-compliance.md
+- [ ] Add compliance_type field to chamas table: 'informal_chama' | 'registered_group' | 'sacco'
+- [ ] SACCO mode: when compliance_type='sacco', unlock additional fields: registration_number, sasra_license, auditor_name
+- [ ] Mandatory fields for SACCO: board_members table (chairman, treasurer, secretary, 2 directors), annual_returns table
+- [ ] Compliance checklist page /dashboard/[chamaId]/compliance: checklist of SASRA requirements with status
+- [ ] AGM (Annual General Meeting) module: schedule AGM, track agenda, record resolutions, generate AGM minutes PDF
+- [ ] External audit trail: every financial transaction immutable (no edit/delete — only reversals with notes)
+
+## PHASE 15: INVESTMENT PORTFOLIO TRACKER
+- [ ] investments table: id, chama_id, name, type (land/stock/business/bond/fixed_deposit), amount_invested, current_value, date_acquired, maturity_date, return_rate, notes
+- [ ] Investments page /dashboard/[chamaId]/investments: cards per investment with current value, gain/loss, ROI %
+- [ ] Add investment form: all fields, receipt/document upload to Supabase storage
+- [ ] Portfolio summary: total invested, total current value, total gain/loss, best performer
+- [ ] Line chart: portfolio value over time (use monthly snapshots stored in investment_snapshots table)
+- [ ] Investment performance vs treasury growth comparison chart
+- [ ] Land valuation: for property investments, store acquisition price + area + location + current estimate
+
+## PHASE 16: WHATSAPP BUSINESS API INTEGRATION
+- [ ] Research Meta WhatsApp Business API Cloud API — document setup in src/lib/whatsapp-api-spec.md
+- [ ] Create src/lib/whatsapp.ts: sendMessage(phone, message), sendTemplate(phone, templateName, params)
+- [ ] If WHATSAPP_API_TOKEN in env: send real WhatsApp messages. If not: open wa.me link (existing fallback)
+- [ ] Automated contribution reminder flow: 3 days before meeting → auto-send WhatsApp to all unpaid members
+- [ ] Loan repayment reminder: 5 days before due date → WhatsApp reminder to borrower
+- [ ] Payment confirmation: when contribution recorded → instant WhatsApp receipt to member
+- [ ] New member welcome: when member added → WhatsApp with chama details and first contribution date
+- [ ] Monthly statement: WhatsApp with "Your ChamaVault statement is ready" + link to portal
+
+## PHASE 17: MULTI-CHAMA FEDERATION
+- [ ] federations table: id, name, created_by, treasurer_id — umbrella organization for multiple chamas
+- [ ] federation_chamas table: federation_id, chama_id, joined_at
+- [ ] /dashboard/federation page: overview of all chamas in a federation
+- [ ] Federation treasurer view: see aggregate financials across all chamas (total members, total savings, total loans)
+- [ ] Inter-chama loans: federation can lend to individual chamas from federation pool
+- [ ] Federation reports: PDF report covering all member chamas — useful for umbrella investment groups
+
+## PHASE 18: MOBILE APP PLANNING & PWA
+- [ ] Convert to PWA: add next-pwa package, configure manifest.json
+- [ ] manifest.json: app name "ChamaVault", short_name "Chama", theme_color: #f59e0b, icons (generate placeholders)
+- [ ] Service worker: cache static assets and last-loaded dashboard data for offline access
+- [ ] Install prompt: show "Add to Home Screen" banner on mobile browsers after 3rd visit
+- [ ] Offline mode: when offline, show cached data with "Offline" badge — no broken screens
+- [ ] Push notifications stub: create src/lib/push.ts with requestPermission(), sendNotification() functions
+- [ ] Document mobile app roadmap in MOBILE_ROADMAP.md: PWA now, React Native later
+
+## PHASE 19: KENYA MARKET LAUNCH PREP
+- [ ] Landing page: add "As seen in" section with placeholders for Business Daily, Nation Media, KBC
+- [ ] Testimonials: 3 real-sounding Kenyan testimonials (name, chama name, city, quote in mix of English/Swahili)
+- [ ] Pricing psychology: show "KES 1,000/mo = KES 33/day — cheaper than a cup of tea" comparison
+- [ ] Partnership page /partners: "Register your SACCO or Chama umbrella body as a ChamaVault partner"
+- [ ] Demo video placeholder: /demo page with placeholder for a 2-minute walkthrough video
+- [ ] WhatsApp business number section on landing: "Chat with us on WhatsApp" link
+- [ ] Mpesa till number section: "Pay via M-Pesa" with till number placeholder on pricing page
+- [ ] Press kit: logo, screenshots, founder bio, one-pager PDF about Kenya chama problem
+- [ ] LAUNCH_CHECKLIST.md: step-by-step Kenya go-live checklist
+- [ ] Product Hunt assets: tagline in Swahili + English, first comment, tagline: "Excel yako ya Chama imekufa — karibu ChamaVault"
