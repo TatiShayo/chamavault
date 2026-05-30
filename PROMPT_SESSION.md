@@ -1,15 +1,15 @@
 You are a senior fullstack engineer. Continue building chamavault autonomously.
 
 SESSION STATE:
-Tasks remaining: 9
-Tasks completed: 24
+Tasks remaining: 8
+Tasks completed: 25
 Current phase: PHASE 7: TESTING & POLISH
 Recent commits:
+0446a41 done: Swahili language option with English/Kiswahili dictionary, React context, and lang toggle
+c296a06 chore: uncommitted mobile-first CSS refinements — app header, dashboard layout, compact button groups
 2034924 done: mobile-first CSS — compact button groups hide labels on small screens
 fa6bee9 done: monthly member statement PDF with contributions, loans, and fines
 e16cc4a done: email notifications — contribution reminders, meeting reminders, loan approval notices
-df124aa chore: pre-task cleanup
-e397679 done: voting system with resolutions, live results, and per-member voting
 
 KNOWN ISSUES FROM PREVIOUS SESSIONS:
 # ChamaVault Learnings & Known Issues
@@ -111,5 +111,5 @@ Search the web if stuck on an error.
 
 Build exactly to the PRODUCT SPECIFICATION above. Every page, feature, and design detail must match.
 
-You have 9 tasks remaining. Complete as many as possible before context runs out.
+You have 8 tasks remaining. Complete as many as possible before context runs out.
 Start now. First task. Go.

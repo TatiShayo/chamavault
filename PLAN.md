@@ -38,7 +38,7 @@
 
 ## PHASE 7: TESTING & POLISH
 - [ ] Mobile-first CSS (most users on Android, small screens) — test at 360px
-- [ ] Swahili language option (static, just Swahili strings for key UI text)
+- [x] Swahili language option (static, just Swahili strings for key UI text)
 - [ ] Unit tests: contribution calculations, loan balance tracking, dividend splits
 - [ ] Lighthouse ≥85
 
