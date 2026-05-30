@@ -22,8 +22,8 @@
 ## PHASE 4: LOANS & DIVIDENDS
 - [x] Loan applications: member applies, committee votes (approve/reject), disbursement recorded
 - [x] Loan repayment: track monthly repayments, outstanding balance, interest accrued
-- [ ] Dividend calculator: at year-end, calculate each member's share based on contributions
-- [ ] Dividend distribution: record that dividends were paid out to each member
+- [x] Dividend calculator: at year-end, calculate each member's share based on contributions
+- [x] Dividend distribution: record that dividends were paid out to each member
 
 ## PHASE 5: MEETINGS & GOVERNANCE
 - [ ] Meeting scheduler: create meeting (date, agenda, venue)
