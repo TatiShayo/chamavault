@@ -5,11 +5,11 @@ Tasks remaining: 87
 Tasks completed: 74
 Current phase: 105|## PHASE 14: SACCO COMPLIANCE MODULE
 Recent commits:
+1c0c5fe feat: initial commit
 f9f09d6 done: SACCO mode fields unlocked — compliance_type selector on edit form with conditional fields (registration, SASRA license, auditor, FY dates, core capital, FOSA)
 d9b8d60 done: SASRA compliance schema — compliance_type field, board_members, annual_returns, compliance_items tables with RLS
 f0dfe26 done: SASRA compliance research documented in src/lib/sasra-compliance.md
 24b08dd done: launch prep — seed data, README (Swahili+English), DEPLOY.md, pricing page, export button, investment total on dashboard
-aeb0d76 done: backup/export — JSON export API route + Download button on reports page
 
 KNOWN ISSUES FROM PREVIOUS SESSIONS:
 # ChamaVault Learnings & Known Issues
