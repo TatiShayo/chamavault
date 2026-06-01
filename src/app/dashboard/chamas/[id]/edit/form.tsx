@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FileText, Upload, Trash2, ExternalLink, Shield } from "lucide-react";
+import { BoardMembersManager } from "@/components/board-members-manager";
 
 export function EditChamaForm({
   chamaId,
@@ -356,6 +357,10 @@ export function EditChamaForm({
               <Label htmlFor="fosaEnabled" className="cursor-pointer">
                 FOSA (Front Office Service Activity) Enabled
               </Label>
+            </div>
+
+            <div className="border-t pt-4">
+              <BoardMembersManager chamaId={chamaId} />
             </div>
           </div>
         )}

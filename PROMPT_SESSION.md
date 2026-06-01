@@ -1,115 +1,32 @@
-You are a senior fullstack engineer. Continue building chamavault autonomously.
+Build the SACCO Compliance Module for ChamaVault.
 
-SESSION STATE:
-Tasks remaining: 87
-Tasks completed: 74
-Current phase: 105|## PHASE 14: SACCO COMPLIANCE MODULE
-Recent commits:
-1c0c5fe feat: initial commit
-f9f09d6 done: SACCO mode fields unlocked — compliance_type selector on edit form with conditional fields (registration, SASRA license, auditor, FY dates, core capital, FOSA)
-d9b8d60 done: SASRA compliance schema — compliance_type field, board_members, annual_returns, compliance_items tables with RLS
-f0dfe26 done: SASRA compliance research documented in src/lib/sasra-compliance.md
-24b08dd done: launch prep — seed data, README (Swahili+English), DEPLOY.md, pricing page, export button, investment total on dashboard
+You are a senior fullstack engineer. Read existing code patterns and build exactly what follows.
 
-KNOWN ISSUES FROM PREVIOUS SESSIONS:
-# ChamaVault Learnings & Known Issues
+═══ CURRENT STATE ═══
+Build passes. Chama management core is complete — contributions, loans, meetings, dividends, communication.
 
+═══ TASKS ═══
 
-═══ PRODUCT SPECIFICATION (from batch2-build-prompts) ═══
-## PROMPT 4 — BUILD CHAMAVAULT
-*(Open chamavault/ in a new CMD → paste this)*
+Task 1: SASRA research doc
+File: src/lib/sasra-compliance.md
+Create a markdown document about Kenya Sacco Societies Regulatory Authority requirements. Cover: minimum membership (30+), registration requirements, annual returns, board composition (chairman, treasurer, secretary, 2 directors), external audit requirements. This is a reference document.
 
----
+Task 2: Add compliance_type field migration
+File: src/lib/compliance-migration.sql
+SQL migration adding compliance_type to chamas table (values: 'informal_chama' | 'registered_group' | 'sacco'). Add columns: registration_number, sasra_license, auditor_name.
 
-```
-You are a senior fullstack engineer. Build ChamaVault — a complete digital chama (group savings) management SaaS for Kenya — in this Next.js project. YOLO MODE. Build everything. No questions.
+Task 3: SACCO compliance mode in chama settings
+File: src/app/dashboard/chamas/[id]/settings/page.tsx (extend existing)
+When chama is 'sacco' type, show additional fields: registration_number, sasra_license, auditor_name as form inputs. Board members management. Update the chama edit form.
 
-═══════════════════════════════════════
-PRODUCT OVERVIEW
-═══════════════════════════════════════
-ChamaVault digitizes Kenya's 1M+ investment/savings groups (chamas) that currently run on WhatsApp messages, Excel spreadsheets, and handwritten notebooks. Mobile-first, Swahili-friendly, M-Pesa native.
+Task 4: Compliance checklist page
+Create file: src/app/dashboard/chamas/[id]/compliance/page.tsx (new page)
+Checklist of SASRA requirements: has board, has annual returns, has external auditor, registration submitted, license valid. Each shows checkmark or X with last-updated date. Server-rendered, reads from DB.
 
-Tagline: "Simamia Chama Yako Vizuri." (Manage Your Chama Well.)
-Target: Chama chairpersons, treasurers, secretaries. Any group savings scheme in Kenya and East Africa.
+═══ DESIGN ═══
+Blue primary (#3b82f6), gray borders, Card wrapper for each section.
+Mobile-friendly — single column on phone, 2-column grid on desktop.
+Use existing shadcn components (Card, Button, Badge, Input, Select).
 
-Pricing:
-- Free: 1 chama, up to 5 members, basic tracking only
-- Small (KES 500/mo): 1 chama, up to 10 members, full features
-- Standard (KES 1,000/mo): 3 chamas, up to 30 members, PDF statements, meeting minutes
-- Large (KES 2,000/mo): Unlimited chamas, unlimited members, full feature set
-
-═══════════════════════════════════════
-TECH STACK
-═══════════════════════════════════════
-- Next.js 14 App Router + TypeScript
-- Supabase (auth + DB + storage)
-- Stripe (for international payments) + M-Pesa Daraja API (document, build with mock if no sandbox)
-- OpenAI GPT-4o-mini (meeting minutes assistant)
-- Resend (email notifications)
-- @react-pdf/renderer (member statements, meeting minutes PDF)
-- shadcn/ui + Tailwind (dark, gold/amber accent #f59e0b)
-- Recharts (savings growth charts)
-- Framer Motion + Sonner
-- papaparse (CSV import for bulk member add)
-
-═══════════════════════════════════════
-ALL PAGES TO BUILD
-═══════════════════════════════════════
-
-1. LANDING PAGE (src/app/page.tsx)
-   - Navbar: ChamaVault logo, Features, Pricing, Login, "Anza Bure" (Start Free)
-   - Hero section: TWO language versions side by side or tabbed (English/Kiswahili)
-     English: "Manage Your Chama. No More Spreadsheets."
-     Kiswahili: "Simamia Chama Yako Vizuri. Acha Kutumia Excel."
-   - Gold CTA button. Background with subtle kanga-inspired geometric pattern in CSS (not image)
-   - Social proof: "Trusted by 500+ chamas in Kenya, Uganda, Tanzania"
-   - Feature list: 8 features with icons (Contributions tracker, Loan management, Meeting minutes, Member statements PDF, WhatsApp reminders, Fines, Dividends, Investment tracking)
-   - "How it works" for a treasurer: 3 steps (Create chama → Add members → Record contributions every month)
-   - Pricing in KES: 4 cards (Free / KES 500 / KES 1,000 / KES 2,000)
-   - Testimonials: 3 in mix of English and Kiswahili, from real-sounding Kenyan names
-   - FAQ: 8 questions (does it work with M-Pesa, can members log in too, is data safe, etc.)
-   - Footer: English + Kiswahili mix
-
-2. AUTH: login, signup, reset, callback
-
-3. CHAMA SELECTOR (src/app/dashboard/page.tsx)
-   - If user belongs to multiple chamas: show a card grid — click to enter that chama's dashboard
-   - If user belongs to 1 chama: go directly to that chama's dashboard
-   - "Create New Chama" card button
-   - Create chama modal: name, meeting day (Mon–Sun), frequency (weekly/bi-weekly/monthly), contribution amount (KES), objective
-
-4. CHAMA DASHBOARD (src/app/dashboard/[chamaId]/page.tsx)
-   - Chama header: name, photo/logo, founding date badge, member count, your role badge (Chairperson / Treasurer / Secretary / Member)
-   - Treasury balance card: large KES amount, calculated as (total contributions + loan interest paid - loans disbursed - expenses)
-   - Stats: This month's collection %, Outstanding contributions (KES), Active loans, Meetings this quarter
-   - Contribution status grid: mini table showing each member and whether they've paid this month (green = paid, red = overdue, gray = not yet due)
-   - Quick actions: Record Contribution, Record Expense, View Loans, Schedule Meeting
-   - Activity feed: last 10 transactions/events
-
-5. CONTRIBUTIONS (src/app/dashboard/[chamaId]/contributions/page.tsx)
-   - Matrix g
-═══ END SPEC ═══
-
-STARTUP SEQUENCE (do this first, every session):
-1. Run: git log --oneline -10
-2. Run: npm run build 2>&1 | tail -20
-3. Run: npx tsc --noEmit 2>&1 | head -15
-4. Read PLAN.md — find the first unchecked [ ] task in the lowest-numbered phase
-5. Read LEARNINGS.md — avoid known blocked approaches
-
-LOOP PROTOCOL:
-Read PLAN.md → first [ ] task → implement it → run npm run build (must pass) →
-git add -A && git commit -m "done: [task name]" → mark [x] in PLAN.md →
-append to PROGRESS.md → move to next task IMMEDIATELY.
-
-Never stop between tasks.
-Never ask for confirmation.
-Never wait for input.
-If a task fails twice: write to LEARNINGS.md as BLOCKED, skip it, continue to next.
-Install any npm package you need: npm install [package].
-Search the web if stuck on an error.
-
-Build exactly to the PRODUCT SPECIFICATION above. Every page, feature, and design detail must match.
-
-You have 87 tasks remaining. Complete as many as possible before context runs out.
-Start now. First task. Go.
+═══ RULES ═══
+Output COMPLETE file contents. npm run build must pass. Create all files.
