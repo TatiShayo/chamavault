@@ -1,0 +1,59 @@
+import { NextResponse } from "next/server";
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { meetingId, agenda, attendance, chamaId } = body;
+
+    if (!agenda) {
+      return NextResponse.json({ error: "Agenda is required" }, { status: 400 });
+    }
+
+    const attendanceList = attendance || "No attendance records";
+
+    const prompt = `You are a professional secretary for a Kenyan chama (savings group). Generate formal meeting minutes in Kiswahili-English bilingual format based on the following:
+
+AGENDA: ${agenda}
+ATTENDANCE: ${attendanceList}
+
+Format the minutes as:
+1. **Opening** (Fungua) - brief
+2. **Roll Call** (Wito wa Jina) - list present/absent
+3. **Agenda Discussion** (Majadiliano) - expand each agenda point with plausible discussion
+4. **Resolutions** (Maazimio) - 2-3 resolutions
+5. **Closing** (Kufunga)
+
+Keep it professional but warm. Use bullet points. Output plain text with markdown headers.`;
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY || "",
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 1024,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: "AI generation failed, please write minutes manually" },
+        { status: 500 }
+      );
+    }
+
+    const data = await res.json();
+    const minutes = data.content?.[0]?.text || "Failed to generate minutes.";
+
+    return NextResponse.json({ minutes });
+  } catch {
+    return NextResponse.json(
+      { error: "AI generation failed, please write minutes manually" },
+      { status: 500 }
+    );
+  }
+}
