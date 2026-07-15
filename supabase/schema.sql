@@ -132,3 +132,26 @@ CREATE TABLE IF NOT EXISTS vote_records (
     cast_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT unique_vote UNIQUE (vote_id, member_id)
 );
+
+-- Atomic contribution increment (prevents race condition on concurrent officer POSTs)
+-- Called via supabase.rpc('increment_contribution', { p_id, p_amount, p_method, p_recorder })
+CREATE OR REPLACE FUNCTION increment_contribution(
+  p_id UUID,
+  p_amount NUMERIC,
+  p_method TEXT DEFAULT NULL,
+  p_recorder UUID DEFAULT NULL
+) RETURNS SETOF contributions
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  UPDATE contributions
+  SET amount_paid = amount_paid + p_amount,
+      paid_at = NOW(),
+      payment_method = COALESCE(p_method, payment_method),
+      recorded_by = COALESCE(p_recorder, recorded_by)
+  WHERE id = p_id
+  RETURNING *;
+END;
+$$;

@@ -9,6 +9,22 @@ export async function GET(
   const { id: chamaId } = await params;
   const supabase = await createClient();
 
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+
+  const { data: membership } = await supabase
+    .from("chama_members")
+    .select("role")
+    .eq("chama_id", chamaId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!membership) {
+    return NextResponse.json({ error: "Not a member of this chama" }, { status: 403 });
+  }
+
   const url = new URL(request.url);
   const phone = url.searchParams.get("phone");
 

@@ -140,24 +140,35 @@ export async function POST(
     .maybeSingle();
 
   if (existing) {
-    const newPaid = Number(existing.amount_paid) + Number(amount);
+    // Atomic increment via PostgreSQL function (race-safe)
     const { data: updated, error } = await supabase
-      .from("contributions")
-      .update({
-        amount_paid: newPaid,
-        paid_at: new Date().toISOString(),
-        payment_method: paymentMethod || null,
-        recorded_by: user.id,
-      })
-      .eq("id", existing.id)
-      .select("id, member_id, month_year, amount_due, amount_paid, paid_at, payment_method")
-      .single();
+      .rpc("increment_contribution", {
+        p_id: existing.id,
+        p_amount: Number(amount),
+        p_method: paymentMethod || null,
+        p_recorder: user.id,
+      });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "Failed to record contribution" }, { status: 500 });
     }
 
-    return NextResponse.json({ contribution: updated });
+    if (!updated || updated.length === 0) {
+      return NextResponse.json({ error: "Contribution record not found" }, { status: 404 });
+    }
+
+    const result = updated[0];
+    return NextResponse.json({
+      contribution: {
+        id: result.id,
+        member_id: result.member_id,
+        month_year: result.month_year,
+        amount_due: result.amount_due,
+        amount_paid: result.amount_paid,
+        paid_at: result.paid_at,
+        payment_method: result.payment_method,
+      },
+    });
   }
 
   // Create new contribution record

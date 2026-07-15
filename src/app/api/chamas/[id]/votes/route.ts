@@ -156,6 +156,17 @@ export async function POST(
       return NextResponse.json({ error: "voteId and valid voteValue (yes/no/abstain) required" }, { status: 400 });
     }
 
+    // Verify the vote is still open
+    const { data: vote } = await supabase
+      .from("votes")
+      .select("closes_at")
+      .eq("id", voteId)
+      .single();
+
+    if (vote?.closes_at && new Date(vote.closes_at) <= new Date()) {
+      return NextResponse.json({ error: "This vote has closed" }, { status: 400 });
+    }
+
     const { data: existing } = await supabase
       .from("vote_records")
       .select("id")

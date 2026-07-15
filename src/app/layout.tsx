@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ChamaVault - Secure Digital Chama Ledger",
   description: "Bilingual (English & Swahili) financial portal for community savings, investments, loan tracking, and democratic voting.",
+  openGraph: {
+    title: "ChamaVault - Secure Digital Chama Ledger",
+    description: "Community savings, investments, loan tracking, and democratic voting for Kenyan chamas.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
