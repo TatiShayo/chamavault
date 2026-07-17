@@ -98,3 +98,55 @@ Status: **Still missing.** ChamaVault collects phone numbers (PII) and financial
 
 - No hardcoded secret fallbacks in lib files
 - No RLS subscription bypass (chama/voting domain, no subscription_tier column)
+
+---
+
+## ROUND 5 — Gate restoration, money-correctness & hardening (July 17, 2026)
+
+Full findings with severity live in **REVIEW_FINDINGS.md**. Summary of this round:
+
+### Gate was broken → now GREEN
+- ~11 runtime deps were imported but missing from `package.json` (`@base-ui/react`,
+  `react-hook-form`, `@hookform/resolvers`, `@react-pdf/renderer`, `cva`, `clsx`,
+  `cmdk`, `resend`, `sonner`, `tailwind-merge`). Installed → tsc + build unblocked.
+- Fixed 30 ESLint errors (explicit-any typed away, JSX entities escaped,
+  fetch-on-mount hook rule suppressed with justification, `require()` → dynamic import).
+- Removed redundant `src/middleware.ts` (Next 16 uses `src/proxy.ts`; both present
+  broke the build). Auth middleware still active via proxy.ts.
+
+### Money-correctness (each test-locked; 79 tests green)
+- **CRITICAL** `toCents(1.005)` rounded to 100 not 101 — fixed with sign-aware
+  `toFixed(4)`; characterization test now passes.
+- **CRITICAL** dividend **double-payout** — POST had no idempotency guard; added
+  pre-check + unique index + 23505→409.
+- **CRITICAL** **negative-amount contribution** could DECREMENT a balance via the
+  increment RPC; zod now rejects it + Postgres CHECK.
+- **HIGH** dividend penny-loss — both GET/POST now use canonical `allocateDividends`
+  (integer cents, largest-remainder) summing exactly to the profit.
+- **HIGH** conflicting loan formulas — removed dead time-based `getLoanOutstanding`;
+  single canonical flat-rate formula in `money.ts`.
+
+### Security
+- **CRITICAL** authored `supabase/rls-policies.sql` — default-deny RLS on every
+  table (was NONE), membership/officer-scoped, + unique dividend index + non-negative
+  CHECKs + chama_id indexes. **Must be applied to the live DB.**
+- **HIGH** stopped ~40 handlers leaking raw DB `error.message` to clients.
+- **HIGH** AI route: added membership authorization + per-user rate limit + zod.
+- **HIGH** loan approval race → atomic `WHERE status='pending'` guard.
+- Added CSP + Permissions-Policy headers; per-chama SMS/email rate limit; expenses
+  receipt type/size limits + MIME-derived extension.
+
+### One real money-abuse chain proven + fixed
+Double-payout: `POST …/dividends` twice for the same year → duplicate dividend rows
+→ every member's payout doubled. Fixed (idempotency pre-check + unique index +
+race-safe 409). Companion negative-contribution abuse also fixed.
+
+### Deferred / flagged (need a human or ops call) — see REVIEW_FINDINGS.md
+- `schema.sql` is stale vs. the live columns (M1) — reconcile before deploy.
+- Officer self-dealing policy (M4); non-atomic chama-create & attendance writes (M5);
+  per-instance rate limiter (M6); no member-removal API (L1); no privacy policy/ToS
+  (L2); zod not yet on every low-risk write route (L3).
+
+### Gate result (this round, foreground)
+`tsc --noEmit` 0 errors · `eslint` 0 errors · `next build` success ·
+`vitest` 79/79 passing. **Full gate GREEN.**
