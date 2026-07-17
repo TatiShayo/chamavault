@@ -34,7 +34,7 @@ export async function GET(
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   const rows = (investments || []).map((inv) => ({
@@ -118,7 +118,7 @@ export async function POST(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   return NextResponse.json({
@@ -191,7 +191,7 @@ export async function PUT(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   return NextResponse.json({
@@ -251,7 +251,7 @@ export async function DELETE(
     .eq("chama_id", chamaId);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   return NextResponse.json({ success: true });

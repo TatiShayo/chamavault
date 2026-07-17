@@ -34,7 +34,7 @@ export async function GET(
     .order("date", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   const { data: attendance } = await supabase
@@ -111,7 +111,7 @@ export async function POST(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   return NextResponse.json({ meeting: { ...meeting, minutesText: meeting.minutes_text, createdAt: meeting.created_at } });
@@ -164,7 +164,7 @@ export async function PATCH(
       .eq("chama_id", chamaId);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
     }
 
     return NextResponse.json({ success: true });
@@ -187,7 +187,7 @@ export async function PATCH(
       .eq("meeting_id", meetingId);
 
     if (deleteError) {
-      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+      { console.error("[api] server error:", deleteError); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
     }
 
     if (records.length > 0) {
@@ -196,7 +196,7 @@ export async function PATCH(
         .insert(records);
 
       if (insertError) {
-        return NextResponse.json({ error: insertError.message }, { status: 500 });
+        { console.error("[api] server error:", insertError); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
       }
     }
 

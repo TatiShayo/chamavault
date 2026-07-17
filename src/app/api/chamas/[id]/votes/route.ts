@@ -34,7 +34,7 @@ export async function GET(
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   const { data: records } = await supabase
@@ -127,7 +127,7 @@ export async function POST(
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
     }
 
     return NextResponse.json({
@@ -181,7 +181,7 @@ export async function POST(
         .eq("id", existing.id);
 
       if (updateError) {
-        return NextResponse.json({ error: updateError.message }, { status: 500 });
+        { console.error("[api] server error:", updateError); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
       }
     } else {
       const { error: insertError } = await supabase
@@ -193,7 +193,7 @@ export async function POST(
         });
 
       if (insertError) {
-        return NextResponse.json({ error: insertError.message }, { status: 500 });
+        { console.error("[api] server error:", insertError); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
       }
     }
 

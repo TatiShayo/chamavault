@@ -34,7 +34,7 @@ export async function GET(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   return NextResponse.json({
@@ -104,7 +104,7 @@ export async function POST(
     });
 
   if (uploadError) {
-    return NextResponse.json({ error: uploadError.message }, { status: 500 });
+    { console.error("[api] server error:", uploadError); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   const { data: urlData } = supabase.storage
@@ -122,7 +122,7 @@ export async function POST(
     .single();
 
   if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
+    { console.error("[api] server error:", updateError); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   return NextResponse.json({
@@ -180,7 +180,7 @@ export async function DELETE(
     .eq("id", chamaId);
 
   if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
+    { console.error("[api] server error:", updateError); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   return NextResponse.json({ success: true });

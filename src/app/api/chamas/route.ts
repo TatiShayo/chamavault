@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     .single();
 
   if (chamaError) {
-    return NextResponse.json({ error: chamaError.message }, { status: 500 });
+    { console.error("[api] server error:", chamaError); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   // Add creator as chairperson
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   if (memberError) {
     // Rollback: delete the chama since we couldn't add the member
     await supabase.from("chamas").delete().eq("id", chama.id);
-    return NextResponse.json({ error: memberError.message }, { status: 500 });
+    { console.error("[api] server error:", memberError); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
   }
 
   return NextResponse.json({ chama });

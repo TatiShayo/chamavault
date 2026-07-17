@@ -17,7 +17,7 @@ export async function GET(
     .eq("chama_id", chamaId)
     .order("appointed_date", { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
 
   return NextResponse.json({ board_members: data });
 }
@@ -68,7 +68,7 @@ export async function POST(
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
 
   return NextResponse.json({ board_member: data });
 }
@@ -116,7 +116,7 @@ export async function PATCH(
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
 
   return NextResponse.json({ board_member: data });
 }
@@ -155,7 +155,7 @@ export async function DELETE(
     .eq("id", boardMemberId)
     .eq("chama_id", chamaId);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) { console.error("[api] server error:", error); return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 }); }
 
   return NextResponse.json({ success: true });
 }
