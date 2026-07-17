@@ -1,5 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+import { rateLimit } from "@/lib/rate-limit";
+
+const minutesSchema = z.object({
+  chamaId: z.string().uuid(),
+  agenda: z.string().min(1).max(5000),
+  attendance: z.string().max(5000).optional().nullable(),
+  meetingId: z.string().uuid().optional().nullable(),
+});
 
 export async function POST(request: Request) {
   try {
@@ -9,11 +18,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { meetingId, agenda, attendance, chamaId } = body;
+    // Throttle the paid LLM call per user: 10 generations / 5 min.
+    const rl = rateLimit(`ai-minutes:${user.id}`, 10, 5 * 60_000);
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: "Too many requests — please wait before generating more minutes" },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
+      );
+    }
 
-    if (!agenda) {
-      return NextResponse.json({ error: "Agenda is required" }, { status: 400 });
+    const parsed = minutesSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "chamaId and agenda are required" },
+        { status: 400 }
+      );
+    }
+    const { agenda, attendance, chamaId } = parsed.data;
+
+    // Authorization: only a member of this chama may spend its AI budget.
+    const { data: membership } = await supabase
+      .from("chama_members")
+      .select("id")
+      .eq("chama_id", chamaId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!membership) {
+      return NextResponse.json({ error: "Not a member of this chama" }, { status: 403 });
     }
 
     const attendanceList = attendance || "No attendance records";

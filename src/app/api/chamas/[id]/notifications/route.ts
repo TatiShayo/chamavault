@@ -12,6 +12,7 @@ import {
   meetingSmsTemplate,
   loanApprovalSmsTemplate,
 } from "@/lib/sms";
+import { rateLimit } from "@/lib/rate-limit";
 
 async function getMemberEmail(userId: string): Promise<string | null> {
   try {
@@ -47,6 +48,15 @@ export async function POST(
 
   if (!membership || !["chairperson", "treasurer", "secretary"].includes(membership.role)) {
     return NextResponse.json({ error: "Only officers can send notifications" }, { status: 403 });
+  }
+
+  // Throttle outbound SMS/email (real per-message cost) per chama: 60 / 10 min.
+  const rl = rateLimit(`notify:${chamaId}`, 60, 10 * 60_000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Notification rate limit reached — please wait a few minutes" },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
+    );
   }
 
   const body = await request.json();

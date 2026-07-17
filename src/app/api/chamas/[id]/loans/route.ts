@@ -252,14 +252,27 @@ export async function PATCH(
       updates.disbursed_at = new Date().toISOString();
     }
 
-    const { error: updateError } = await supabase
+    // Race-safe: only a still-pending loan may be approved/rejected. The
+    // status guard makes the decision atomic — two officers acting at once
+    // cannot both "win"; the second sees an empty result. Prevents an already
+    // approved (disbursed) loan being re-approved / double-disbursed.
+    const { data: changed, error: updateError } = await supabase
       .from("loans")
       .update(updates)
       .eq("id", loanId)
-      .eq("chama_id", chamaId);
+      .eq("chama_id", chamaId)
+      .eq("status", "pending")
+      .select("id");
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 });
+      return NextResponse.json({ error: "Failed to update loan" }, { status: 500 });
+    }
+
+    if (!changed || changed.length === 0) {
+      return NextResponse.json(
+        { error: "Loan is no longer pending — it may have already been decided" },
+        { status: 409 }
+      );
     }
 
     // Send email notification on approval
