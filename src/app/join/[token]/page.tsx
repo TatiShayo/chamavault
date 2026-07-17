@@ -180,7 +180,6 @@ export default async function JoinPage({
   // Send welcome email
   const userEmail = user.email;
   if (userEmail) {
-    const chama = (invitation as any).chama;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
     sendWelcomeEmail({

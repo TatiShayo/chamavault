@@ -160,7 +160,10 @@ export async function GET(
 
   try {
     const blob = await pdf(
-      React.createElement(AnnualReportPDF as any, { data: reportData }) as any
+      React.createElement(
+        AnnualReportPDF as React.ComponentType<{ data: typeof reportData }>,
+        { data: reportData }
+      ) as Parameters<typeof pdf>[0]
     ).toBlob();
 
     return new Response(blob, {

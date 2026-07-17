@@ -61,6 +61,7 @@ export function DividendCalculator({
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount
     fetchDividends(year);
   }, [year]);
 

@@ -97,6 +97,7 @@ export function LoanTracker({
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount
     fetchLoans();
   }, [chamaId]);
 

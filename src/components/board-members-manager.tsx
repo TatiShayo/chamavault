@@ -54,6 +54,7 @@ export function BoardMembersManager({ chamaId }: { chamaId: string }) {
   }, [chamaId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount
     fetchMembers();
   }, [fetchMembers]);
 

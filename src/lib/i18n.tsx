@@ -280,6 +280,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem("chamavault-lang") as Lang | null;
     if (stored === "en" || stored === "sw") {
+      // Client-only hydration of persisted language; cannot run during SSR.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLangState(stored);
     }
   }, []);

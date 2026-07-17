@@ -32,9 +32,15 @@ const CENTS_PER_UNIT = 100;
 export function toCents(kes: number | string): number {
   const n = typeof kes === "string" ? Number(kes) : kes;
   if (!Number.isFinite(n)) return 0;
-  // Round half away from zero to avoid banker's-rounding surprises and the
-  // classic 1.005 * 100 = 100.49999 float error.
-  return Math.round(n * CENTS_PER_UNIT + (n >= 0 ? Number.EPSILON : -Number.EPSILON));
+  // Round half away from zero. A bare `Math.round(n * 100)` mis-rounds the
+  // classic float trap `1.005 * 100 === 100.49999999999999` down to 100.
+  // `toFixed(4)` re-materialises the value as a decimal string, absorbing the
+  // ~1e-13 binary-representation error while preserving the true 3rd decimal,
+  // so 1.005 → "100.5000" → 101. Work on the magnitude and re-apply the sign
+  // so negatives round away from zero too (Math.round(-0.5) === -0, not -1).
+  const sign = n < 0 ? -1 : 1;
+  const scaled = Number((Math.abs(n) * CENTS_PER_UNIT).toFixed(4));
+  return sign * Math.round(scaled);
 }
 
 /**
@@ -140,7 +146,7 @@ export function allocateByShares<T>(
   // Floor each share toward zero, track fractional remainder for ranking.
   const raw = effectiveWeights.map((w) => (total * w) / effectiveTotalWeight);
   const floored = raw.map((r) => Math.trunc(r));
-  let allocated = floored.reduce((s, f) => s + f, 0);
+  const allocated = floored.reduce((s, f) => s + f, 0);
   let leftover = total - allocated; // signed cents still to hand out
 
   // Rank indices by fractional part so the members "most owed" a cent get it

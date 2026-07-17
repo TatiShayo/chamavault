@@ -1,11 +1,25 @@
-let AT: any = null;
+interface ATSms {
+  send(opts: { to: string[]; message: string; from: string }): Promise<Record<string, unknown>>;
+}
+interface ATClient {
+  SMS: ATSms;
+}
+type ATFactory = (cfg: { apiKey: string; username: string }) => ATClient;
 
-function getAT(): any | null {
+let AT: ATClient | null = null;
+
+async function getAT(): Promise<ATClient | null> {
   if (!process.env.AT_API_KEY || !process.env.AT_USERNAME) return null;
   if (!AT) {
     try {
-      const africastalking = require("africastalking");
-      AT = africastalking({
+      // Specifier held in a variable so the optional peer dep is resolved at
+      // runtime only — it is not a hard build/type dependency.
+      const pkg = "africastalking";
+      const mod = (await import(/* webpackIgnore: true */ pkg)) as {
+        default?: ATFactory;
+      } & ATFactory;
+      const factory: ATFactory = mod.default ?? (mod as ATFactory);
+      AT = factory({
         apiKey: process.env.AT_API_KEY,
         username: process.env.AT_USERNAME,
       });
@@ -26,7 +40,7 @@ export async function sendSms({
   to,
   message,
 }: SendSmsParams): Promise<{ success?: boolean; error?: unknown; skipped?: boolean }> {
-  const at = getAT();
+  const at = await getAT();
   if (!at) {
     console.warn("AT_API_KEY or AT_USERNAME not set — skipping SMS");
     return { skipped: true };

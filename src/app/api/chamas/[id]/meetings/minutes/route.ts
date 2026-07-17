@@ -153,7 +153,10 @@ export async function GET(
 
   try {
     const blob = await pdf(
-      React.createElement(MeetingMinutesPDF as any, { data: minutesData }) as any
+      React.createElement(
+        MeetingMinutesPDF as React.ComponentType<{ data: typeof minutesData }>,
+        { data: minutesData }
+      ) as Parameters<typeof pdf>[0]
     ).toBlob();
 
     return new Response(blob, {

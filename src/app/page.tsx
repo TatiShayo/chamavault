@@ -71,6 +71,7 @@ export default function Home() {
 
   // Load state on mount
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only hydration of mock store
     setDb(getDbState());
 
     const handleUpdate = () => {
@@ -327,7 +328,7 @@ export default function Home() {
     const mId = formData.get('member_id') as string;
     const month = formData.get('month') as string;
     const amt = Number(formData.get('amount'));
-    const payMethod = formData.get('payment_method') as any;
+    const payMethod = formData.get('payment_method') as 'M-Pesa' | 'Cash' | 'Bank Transfer';
     const ref = formData.get('reference') as string;
     const remarks = formData.get('remarks') as string;
 
@@ -447,7 +448,7 @@ export default function Home() {
     if (!db) return;
     const formData = new FormData(e.currentTarget);
     const amt = Number(formData.get('amount'));
-    const category = formData.get('category') as any;
+    const category = formData.get('category') as 'refreshments' | 'stationery' | 'charity' | 'registration' | 'other';
     const description = formData.get('description') as string;
     const date = formData.get('date') as string;
     const receiptMock = formData.get('receipt_mock') as string;
@@ -883,6 +884,7 @@ export default function Home() {
     );
 
     const voteRecord: VoteRecord = {
+      // eslint-disable-next-line react-hooks/purity -- runs in an event handler, not render
       id: existingIdx >= 0 ? db.voteRecords[existingIdx].id : `vr-${Date.now()}`,
       vote_id: voteId,
       member_id: currentMemberId,
@@ -1561,7 +1563,7 @@ export default function Home() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setCurrentTab(tab.id as any)}
+                  onClick={() => setCurrentTab(tab.id as typeof currentTab)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
                     isActive 
                       ? 'bg-[#f59e0b] text-black shadow-md' 
@@ -1605,7 +1607,7 @@ export default function Home() {
                 <button
                   key={tab.id}
                   onClick={() => {
-                    setCurrentTab(tab.id as any);
+                    setCurrentTab(tab.id as typeof currentTab);
                     setMobileMenuOpen(false);
                   }}
                   className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition ${
@@ -2661,7 +2663,7 @@ export default function Home() {
                                             onChange={(e) => {
                                               setMeetingAttendanceState(prev => ({
                                                 ...prev,
-                                                [m.id]: e.target.value as any
+                                                [m.id]: e.target.value as 'present' | 'absent' | 'absent_with_apology'
                                               }));
                                               setActiveMeetingId(meeting.id);
                                             }}
@@ -3075,7 +3077,7 @@ export default function Home() {
               return (
                 <button
                   key={role.id}
-                  onClick={() => handleRoleChange(role.id as any)}
+                  onClick={() => handleRoleChange(role.id as 'Chairperson' | 'Treasurer' | 'Secretary' | 'Member')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
                     isSelected 
                       ? 'bg-[#f59e0b] text-black border border-transparent shadow' 

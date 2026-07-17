@@ -36,7 +36,15 @@ export default function InvitePage({
   const [joinUrl, setJoinUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [chamaName, setChamaName] = useState("");
-  const [invitations, setInvitations] = useState<any[]>([]);
+  const [invitations, setInvitations] = useState<
+    Array<{
+      id: string;
+      email?: string | null;
+      phone?: string | null;
+      status: string;
+      created_at: string;
+    }>
+  >([]);
 
   const {
     register,

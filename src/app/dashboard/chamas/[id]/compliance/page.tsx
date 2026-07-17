@@ -166,7 +166,7 @@ export default async function CompliancePage({
               <CardTitle>SASRA Requirements</CardTitle>
             </div>
             <CardDescription>
-              Verify your SACCO's compliance with Kenyan regulatory standards.
+              Verify your SACCO&apos;s compliance with Kenyan regulatory standards.
             </CardDescription>
           </CardHeader>
           <CardContent className="divide-y">

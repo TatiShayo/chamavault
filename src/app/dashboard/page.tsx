@@ -9,12 +9,35 @@ import { Plus, Calendar, Landmark, ArrowRight } from "lucide-react";
 import { useLang, t } from "@/lib/i18n";
 import { LangToggle } from "@/components/lang-toggle";
 
+interface ChamaRef {
+  id: string;
+  name: string;
+  meeting_day: string;
+  meeting_frequency: string;
+  contribution_amount: number;
+  objective?: string | null;
+  founding_date?: string | null;
+}
+interface Membership {
+  id: string;
+  role: string;
+  chama_id: string;
+  // Supabase types a to-one relation as an array; normalise on read.
+  chamas: ChamaRef | ChamaRef[] | null;
+}
+
+function firstChama(m: Membership): ChamaRef | null {
+  const c = m.chamas;
+  if (!c) return null;
+  return Array.isArray(c) ? c[0] ?? null : c;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const { lang } = useLang();
   const [loading, setLoading] = useState(true);
   const [displayName, setDisplayName] = useState("");
-  const [memberships, setMemberships] = useState<any[]>([]);
+  const [memberships, setMemberships] = useState<Membership[]>([]);
   const [redirected, setRedirected] = useState(false);
 
   useEffect(() => {
@@ -42,13 +65,15 @@ export default function DashboardPage() {
         .order("joined_at", { ascending: false });
 
       if (members && members.length === 1) {
-        const chama = members[0].chamas as any;
-        setRedirected(true);
-        router.replace(`/dashboard/chamas/${chama.id}`);
-        return;
+        const chama = firstChama(members[0] as unknown as Membership);
+        if (chama) {
+          setRedirected(true);
+          router.replace(`/dashboard/chamas/${chama.id}`);
+          return;
+        }
       }
 
-      setMemberships(members || []);
+      setMemberships((members as unknown as Membership[]) || []);
       setLoading(false);
     })();
   }, [router]);
@@ -81,7 +106,7 @@ export default function DashboardPage() {
         {memberships.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {memberships.map((m) => {
-              const chama = (m as any).chamas;
+              const chama = firstChama(m);
               if (!chama) return null;
               return (
                 <Card key={m.chama_id}>
@@ -150,7 +175,7 @@ export default function DashboardPage() {
               {t(lang, "dashboard.noChama")}
             </h3>
             <p className="text-muted-foreground mb-6 max-w-sm">
-              You haven't joined or created any chamas yet. Create one to start managing your savings group.
+              You haven&apos;t joined or created any chamas yet. Create one to start managing your savings group.
             </p>
             <Link
               href="/dashboard/create-chama"
