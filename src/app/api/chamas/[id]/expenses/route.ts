@@ -102,10 +102,30 @@ export async function POST(
     return NextResponse.json({ error: "All fields are required" }, { status: 400 });
   }
 
+  const amountNum = Number(amount);
+  if (!Number.isFinite(amountNum) || amountNum < 0 || amountNum > 9_999_999_999_999) {
+    return NextResponse.json({ error: "amount must be a non-negative number" }, { status: 400 });
+  }
+
   let receiptUrl: string | null = null;
 
   if (receiptFile && receiptFile.size > 0) {
-    const fileExt = receiptFile.name.split(".").pop();
+    // Restrict uploads: type + size (5 MB) to block oversized/abusive files.
+    const allowed = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+    if (!allowed.includes(receiptFile.type)) {
+      return NextResponse.json({ error: "Receipt must be a JPG, PNG, WebP, or PDF" }, { status: 400 });
+    }
+    if (receiptFile.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: "Receipt must be 5 MB or smaller" }, { status: 400 });
+    }
+    // Derive extension from MIME (never trust the client filename → path traversal).
+    const extByType: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/webp": "webp",
+      "application/pdf": "pdf",
+    };
+    const fileExt = extByType[receiptFile.type];
     const fileName = `${chamaId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
     const { data: upload, error: uploadError } = await supabase.storage
@@ -128,7 +148,7 @@ export async function POST(
     .insert({
       chama_id: chamaId,
       description,
-      amount: Number(amount),
+      amount: amountNum,
       category,
       expense_date: expenseDate,
       receipt_url: receiptUrl,
