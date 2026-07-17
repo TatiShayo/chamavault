@@ -13,12 +13,22 @@
     "ci": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {
+    "@base-ui/react": "^1.6.0",
+    "@hookform/resolvers": "^5.4.0",
+    "@react-pdf/renderer": "^4.5.1",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "lucide-react": "^1.22.0",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-hook-form": "^7.81.0",
+    "resend": "^6.17.2",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
