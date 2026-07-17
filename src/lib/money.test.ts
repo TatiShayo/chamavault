@@ -6,6 +6,7 @@ import {
   loanBalance,
   loanOutstanding,
   allocateByShares,
+  allocateDividends,
 } from "@/lib/money";
 
 // ── Currency conversion ──────────────────────────────────────────────────────
@@ -131,5 +132,59 @@ describe("allocateByShares", () => {
     const total = toCents(1_000_000.01);
     const alloc = allocateByShares(total, members, (m) => m.units);
     expect(alloc.reduce((s, a) => s + a.amountCents, 0)).toBe(total);
+  });
+});
+
+// ── Canonical dividend allocation (route uses this on both GET and POST) ──────
+
+describe("allocateDividends (canonical payout)", () => {
+  const members = [
+    { id: "m1", share_units: 3 },
+    { id: "m2", share_units: 1 },
+    { id: "m3", share_units: 1 },
+  ];
+
+  it("splits by share_units and sums EXACTLY to the profit (no penny lost)", () => {
+    const profit = 10000; // KES; 5 units total => 6000 / 2000 / 2000
+    const alloc = allocateDividends(profit, members);
+    const byId = Object.fromEntries(alloc.map((a) => [a.memberId, a.amountKes]));
+    expect(byId.m1).toBe(6000);
+    expect(byId.m2).toBe(2000);
+    expect(byId.m3).toBe(2000);
+    const sumCentsExact = alloc.reduce((s, a) => s + a.amountCents, 0);
+    expect(sumCentsExact).toBe(toCents(profit));
+  });
+
+  it("distributes an indivisible remainder without losing or minting a cent", () => {
+    const profit = 100; // 10000 cents across 5 units => 2000/6666.67... check exact sum
+    const odd = [
+      { id: "a", share_units: 1 },
+      { id: "b", share_units: 1 },
+      { id: "c", share_units: 1 },
+    ];
+    const alloc = allocateDividends(profit, odd);
+    expect(alloc.reduce((s, a) => s + a.amountCents, 0)).toBe(toCents(profit));
+    // parts differ by at most one cent
+    const cents = alloc.map((a) => a.amountCents);
+    expect(Math.max(...cents) - Math.min(...cents)).toBeLessThanOrEqual(1);
+  });
+
+  it("accepts numeric-string share_units from the DB", () => {
+    const alloc = allocateDividends(300, [
+      { id: "a", share_units: "1" },
+      { id: "b", share_units: "2" },
+    ]);
+    const byId = Object.fromEntries(alloc.map((a) => [a.memberId, a.amountKes]));
+    expect(byId.a).toBe(100);
+    expect(byId.b).toBe(200);
+  });
+
+  it("splits evenly when no member has share_units", () => {
+    const alloc = allocateDividends(90, [
+      { id: "a", share_units: 0 },
+      { id: "b", share_units: 0 },
+      { id: "c", share_units: 0 },
+    ]);
+    expect(alloc.map((a) => a.amountKes)).toEqual([30, 30, 30]);
   });
 });

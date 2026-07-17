@@ -1,5 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
+const contributionSchema = z.object({
+  memberId: z.string().uuid(),
+  monthYear: z.string().regex(/^\d{4}-\d{2}/, "monthYear must start with YYYY-MM"),
+  // Positive, finite, at most 2dp, capped to NUMERIC(15,2). A negative amount
+  // would otherwise DECREMENT amount_paid via the atomic increment RPC.
+  amount: z
+    .number()
+    .finite()
+    .positive()
+    .max(9_999_999_999_999)
+    .refine((n) => Math.round(n * 100) === n * 100, "amount supports at most 2 decimals"),
+  paymentMethod: z.string().max(50).optional().nullable(),
+});
 
 export async function GET(
   request: Request,
@@ -94,15 +109,14 @@ export async function POST(
     );
   }
 
-  const body = await request.json();
-  const { memberId, monthYear, amount, paymentMethod } = body;
-
-  if (!memberId || !monthYear || !amount) {
+  const parsed = contributionSchema.safeParse(await request.json());
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "memberId, monthYear, and amount are required" },
+      { error: parsed.error.issues[0]?.message ?? "Invalid contribution payload" },
       { status: 400 }
     );
   }
+  const { memberId, monthYear, amount, paymentMethod } = parsed.data;
 
   // Get chama contribution amount for this member
   const { data: chama } = await supabase

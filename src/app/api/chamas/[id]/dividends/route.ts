@@ -1,5 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+import { allocateDividends } from "@/lib/money";
+
+const distributeSchema = z.object({
+  year: z.coerce
+    .number()
+    .int()
+    .gte(2000)
+    .lte(2100),
+});
 
 export async function GET(
   request: Request,
@@ -81,23 +91,17 @@ export async function GET(
     0
   );
 
-  const memberCount = (members || []).length;
-
-  const dividendRows = (members || []).map((m) => {
-    const units = Number(m.share_units || 0);
-    const share =
-      totalUnits > 0
-        ? (units / totalUnits) * distributableProfit
-        : memberCount > 0
-          ? distributableProfit / memberCount
-          : 0;
-    return {
-      memberId: m.id,
-      fullName: m.full_name,
-      shareUnits: units,
-      dividendAmount: Math.round(share * 100) / 100,
-    };
-  });
+  // Canonical, exact allocation (integer cents, largest-remainder). Parts sum
+  // EXACTLY to distributableProfit — no penny lost to per-member rounding.
+  const nameById = new Map((members || []).map((m) => [m.id, m.full_name]));
+  const dividendRows = allocateDividends(distributableProfit, members || []).map(
+    (a) => ({
+      memberId: a.memberId,
+      fullName: nameById.get(a.memberId),
+      shareUnits: a.shareUnits,
+      dividendAmount: a.amountKes,
+    })
+  );
 
   return NextResponse.json({
     year: Number(year),
@@ -139,11 +143,30 @@ export async function POST(
     );
   }
 
-  const body = await request.json();
-  const { year } = body;
+  const parsed = distributeSchema.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "A valid year (2000-2100) is required" },
+      { status: 400 }
+    );
+  }
+  const { year } = parsed.data;
 
-  if (!year) {
-    return NextResponse.json({ error: "Year is required" }, { status: 400 });
+  // Idempotency guard against double-payout: if dividends were already
+  // distributed for this chama+year, refuse rather than inserting a second set
+  // of records (which would double every member's payout). Pair with the
+  // unique index in supabase/rls-policies.sql for a hard, race-proof backstop.
+  const { count: existingCount } = await supabase
+    .from("dividends")
+    .select("id", { count: "exact", head: true })
+    .eq("chama_id", chamaId)
+    .eq("year", year);
+
+  if ((existingCount ?? 0) > 0) {
+    return NextResponse.json(
+      { error: `Dividends for ${year} have already been distributed` },
+      { status: 409 }
+    );
   }
 
   const startDate = `${year}-01-01`;
@@ -191,32 +214,31 @@ export async function POST(
   );
 
   const distributableProfit = totalContributions + totalRepayments - totalExpenses;
-  const totalUnits = (members || []).reduce(
-    (sum, m) => sum + Number(m.share_units || 0),
-    0
-  );
 
-  const dividendRecords = (members || []).map((m) => {
-    const units = Number(m.share_units || 0);
-    const share =
-      totalUnits > 0
-        ? (units / totalUnits) * distributableProfit
-        : (members || []).length > 0
-          ? distributableProfit / (members || []).length
-          : 0;
-    return {
+  // Exact integer-cents allocation — persisted amounts sum EXACTLY to the
+  // distributable profit and match what GET previews to members.
+  const dividendRecords = allocateDividends(distributableProfit, members || []).map(
+    (a) => ({
       chama_id: chamaId,
-      member_id: m.id,
-      year: Number(year),
-      amount: Math.round(share * 100) / 100,
+      member_id: a.memberId,
+      year,
+      amount: a.amountKes,
       distributed_by: user.id,
-    };
-  });
+    })
+  );
 
   const { error } = await supabase.from("dividends").insert(dividendRecords);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // A 23505 here means a concurrent request won the race against our
+    // idempotency pre-check — treat as already-distributed, not a 500.
+    if ((error as { code?: string }).code === "23505") {
+      return NextResponse.json(
+        { error: `Dividends for ${year} have already been distributed` },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json({ error: "Failed to distribute dividends" }, { status: 500 });
   }
 
   return NextResponse.json({ success: true, distributed: dividendRecords.length });

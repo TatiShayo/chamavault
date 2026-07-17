@@ -122,6 +122,37 @@ export interface Allocation<T> {
  *
  * @returns one allocation per item, in the same order as `items`.
  */
+export interface DividendAllocation {
+  memberId: string;
+  shareUnits: number;
+  amountCents: number;
+  amountKes: number;
+}
+
+/**
+ * Canonical dividend / payout split for a chama.
+ *
+ * `distributableProfitKes` is split among `members` in proportion to their
+ * `share_units` using the largest-remainder method so the parts sum EXACTLY to
+ * the profit — no shilling created or lost. When no member has share_units the
+ * profit is split evenly. This is the SINGLE source of truth for payout
+ * allocation; both the read (`GET`) and the write (`POST`) paths of the
+ * dividends route call it so the preview and the persisted records always agree.
+ */
+export function allocateDividends(
+  distributableProfitKes: number,
+  members: Array<{ id: string; share_units: number | string | null }>
+): DividendAllocation[] {
+  const totalCents = toCents(distributableProfitKes);
+  const parts = allocateByShares(totalCents, members, (m) => Number(m.share_units) || 0);
+  return parts.map(({ item, amountCents }) => ({
+    memberId: item.id,
+    shareUnits: Number(item.share_units) || 0,
+    amountCents,
+    amountKes: fromCents(amountCents),
+  }));
+}
+
 export function allocateByShares<T>(
   totalCents: number,
   items: T[],

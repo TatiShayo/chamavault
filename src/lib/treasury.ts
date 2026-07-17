@@ -77,16 +77,11 @@ export async function getTreasuryBalance(chamaId: string): Promise<TreasuryBalan
   };
 }
 
-export async function getLoanOutstanding(
-  loanAmount: number,
-  interestRate: number,
-  monthsElapsed: number,
-  totalRepaid: number
-): Promise<number> {
-  const interest = loanAmount * (interestRate / 100) * (monthsElapsed / 12);
-  const totalDue = loanAmount + interest;
-  return Math.max(0, totalDue - totalRepaid);
-}
+// NOTE: A former `getLoanOutstanding` here used a time-based interest accrual
+// (`principal * rate * months/12`) that CONFLICTED with the canonical flat-rate
+// formula in money.ts / the loans route. It was dead code (never imported) and
+// has been removed to leave a single canonical loan formula. See loanBalance()
+// in src/lib/money.ts and REVIEW_FINDINGS.md.
 
 export async function getArrears(
   chamaId: string,
