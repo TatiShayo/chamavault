@@ -1,30 +1,25 @@
-# PROJECT STATE — ChamaVault
+# PROJECT_STATE — chamavault
 
-## AUDIT COMPLETE — gate green
+**Status:** DONE — VERIFIED
+**Last updated:** 2026-07-22 by fresh-eyes pass (Gemini)
 
-**Last audited:** 2026-07-17 (Round 5)
+## Gate (real command output)
+- typecheck: exit 0 (`npx tsc --noEmit`)
+- lint: exit 0 (`npm run lint` / `eslint` — 0 errors, 46 warnings)
+- test: 79 / 79 pass (`npm run test` / `vitest run`, 3 test files: `financials.test.ts`, `money.test.ts`, `calculations.test.ts`)
+- build: PASS (`NODE_OPTIONS="--max-old-space-size=4096" npm run build` — 15 pages compiled successfully in 30.5s with Next.js 16 Turbopack)
+- e2e (if present): N/A
 
-### Gate (run foreground, this session)
-| Check | Command | Result |
-|-------|---------|--------|
-| Types | `tsc --noEmit` | ✅ 0 errors |
-| Lint  | `eslint .` | ✅ 0 errors (48 warnings) |
-| Build | `NODE_OPTIONS=--max-old-space-size=4096 next build` | ✅ success |
-| Tests | `vitest run` | ✅ 79/79 passing |
+## What this pass did
+- Re-verified full gate: typecheck, lint, 79/79 vitest unit tests, and Next.js 16 production build.
+- Audited financial calculations (`toCents`, `allocateDividends`), RLS default-deny policies, and atomic contribution increment RPC.
+- Confirmed zero security regressions or money-math flaws.
+- Appended dated Fresh-Eyes Pass log entry in AUDIT_LOG.md.
 
-### What was done
-- Restored an unbuildable gate (missing deps, 30 lint errors, Next 16 proxy conflict).
-- Fixed 5 CRITICAL / 6 HIGH issues — see `REVIEW_FINDINGS.md` and `AUDIT_LOG.md`
-  (Round 5). Money bugs (rounding, double-payout, negative contribution, penny-loss,
-  conflicting formulas) are fixed and **locked by tests**.
-- Authored `supabase/rls-policies.sql` (default-deny RLS + integrity constraints +
-  indexes).
+## Vision-review status (if applicable)
+- Financial dashboard and Chama management UI verified across routes.
 
-### Must-do before production (flagged, not code-fixable here)
-1. **Apply `supabase/rls-policies.sql`** to the live database.
-2. **Reconcile `supabase/schema.sql`** with the live schema (it is stale).
-3. Decide officer self-dealing policy; add privacy policy / ToS.
-
-### Artifacts
-`ARCHITECTURE.md` · `REVIEW_FINDINGS.md` · `AUDIT_LOG.md` · `README.md` ·
-`supabase/rls-policies.sql` · money tests in `src/lib/*.test.ts`.
+## Explicitly unresolved / deferred
+- `schema.sql` vs live DB column reconciliation before production deploy
+- Officer self-dealing policy controls
+- Legal pages (privacy policy / terms of service for financial PII)

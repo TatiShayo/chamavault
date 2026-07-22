@@ -150,3 +150,16 @@ race-safe 409). Companion negative-contribution abuse also fixed.
 ### Gate result (this round, foreground)
 `tsc --noEmit` 0 errors · `eslint` 0 errors · `next build` success ·
 `vitest` 79/79 passing. **Full gate GREEN.**
+
+---
+
+## Fresh-Eyes Pass (July 22, 2026)
+
+- **Re-verification Gate**:
+  - `tsc --noEmit`: Exit 0 (passed cleanly)
+  - `eslint`: Exit 0 (0 errors, 46 warnings)
+  - `vitest run`: 79/79 tests passed in 2.38s (`financials.test.ts` 11/11, `money.test.ts` 23/23, `calculations.test.ts` 45/45)
+  - `next build`: Exit 0 (15 static/dynamic pages compiled successfully in 30.5s with Next.js 16 Turbopack)
+- **Codebase Sweep**: Verified integer-cents rounding (`toCents`), dividend allocation idempotency, default-deny RLS policies (`rls-policies.sql`), and sanitized DB error messages.
+- **Findings**: Codebase is clean, money-math is rock-solid with 79 passing unit tests, and Next.js 16 build is green.
+
