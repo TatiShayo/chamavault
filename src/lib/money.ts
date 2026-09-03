@@ -30,8 +30,16 @@ const CENTS_PER_UNIT = 100;
  * Guards against NaN/Infinity by returning 0.
  */
 export function toCents(kes: number | string): number {
+  if (kes === null || kes === undefined || typeof kes === "boolean") return 0;
+  if (typeof kes === "string") {
+    const trimmed = kes.trim();
+    // Guard against null bytes, control characters, or hex/octal/binary injections
+    if (/[\0\x00-\x1F]/.test(trimmed) || /^0[xXbBoO]/.test(trimmed)) {
+      return 0;
+    }
+  }
   const n = typeof kes === "string" ? Number(kes) : kes;
-  if (!Number.isFinite(n)) return 0;
+  if (typeof n !== "number" || !Number.isFinite(n)) return 0;
   // Round half away from zero. A bare `Math.round(n * 100)` mis-rounds the
   // classic float trap `1.005 * 100 === 100.49999999999999` down to 100.
   // `toFixed(4)` re-materialises the value as a decimal string, absorbing the
@@ -47,6 +55,7 @@ export function toCents(kes: number | string): number {
  * Convert integer cents back to a KES number with 2 decimal places.
  */
 export function fromCents(cents: number): number {
+  if (!Number.isFinite(cents)) return 0;
   return Math.round(cents) / CENTS_PER_UNIT;
 }
 
@@ -54,6 +63,7 @@ export function fromCents(cents: number): number {
  * Sum a list of KES amounts with no float drift. Returns integer cents.
  */
 export function sumCents(amounts: Array<number | string>): number {
+  if (!Array.isArray(amounts)) return 0;
   return amounts.reduce<number>((acc, a) => acc + toCents(a), 0);
 }
 
@@ -84,12 +94,12 @@ export function loanBalance(
   ratePercent: number | string,
   totalRepaidKes: number | string = 0
 ): LoanBalance {
-  const principalCents = toCents(principalKes);
-  const rate = Number(ratePercent) || 0;
+  const principalCents = Math.max(0, toCents(principalKes));
+  const rate = Math.max(0, Number(ratePercent) || 0);
   // interest computed on the cents principal, rounded to whole cents.
   const interestCents = Math.round(principalCents * (rate / 100));
   const totalDueCents = principalCents + interestCents;
-  const repaidCents = toCents(totalRepaidKes);
+  const repaidCents = Math.max(0, toCents(totalRepaidKes));
   const outstandingCents = Math.max(0, totalDueCents - repaidCents);
   return { principalCents, interestCents, totalDueCents, outstandingCents };
 }
@@ -198,4 +208,132 @@ export function allocateByShares<T>(
   }
 
   return items.map((item, i) => ({ item, amountCents: result[i] }));
+}
+
+// ── Compound Interest & Financial Utilities ─────────────────────────────────
+
+/**
+ * Calculate compound interest in integer cents:
+ * A = P * (1 + r/n)^(n*t) - P
+ * @param principalKes Principal amount in KES
+ * @param annualRatePercent Annual nominal rate, e.g. 12 for 12%
+ * @param periods Total number of compounding periods elapsed
+ * @param periodsPerYear Compounding frequency per year (e.g. 12 for monthly, 365 for daily)
+ */
+export function compoundInterestCents(
+  principalKes: number | string,
+  annualRatePercent: number | string,
+  periods: number,
+  periodsPerYear: number = 12
+): { interestCents: number; totalDueCents: number } {
+  const principalCents = toCents(principalKes);
+  if (principalCents <= 0 || periods <= 0) {
+    return { interestCents: 0, totalDueCents: principalCents };
+  }
+  const rate = (Number(annualRatePercent) || 0) / 100;
+  const periodicRate = rate / Math.max(1, periodsPerYear);
+  const factor = Math.pow(1 + periodicRate, periods);
+  const totalDueCents = Math.round(principalCents * factor);
+  const interestCents = Math.max(0, totalDueCents - principalCents);
+  return { interestCents, totalDueCents };
+}
+
+export interface LatePenaltyRule {
+  type: "flat" | "percentage" | "daily";
+  value: number; // KES flat amount, or percentage (e.g. 5 for 5%), or daily percentage (e.g. 0.1 for 0.1%/day)
+  daysOverdue?: number;
+  graceDays?: number;
+}
+
+/**
+ * Calculate late penalty fee in integer cents.
+ */
+export function calculateLatePenaltyCents(
+  dueAmountKes: number | string,
+  rule: LatePenaltyRule
+): number {
+  const dueCents = toCents(dueAmountKes);
+  if (dueCents <= 0) return 0;
+
+  const daysOverdue = Math.max(0, rule.daysOverdue || 0);
+  const graceDays = Math.max(0, rule.graceDays || 0);
+
+  if (daysOverdue <= graceDays) {
+    return 0;
+  }
+
+  const effectiveDays = daysOverdue - graceDays;
+
+  switch (rule.type) {
+    case "flat":
+      return toCents(rule.value);
+    case "percentage":
+      return Math.round(dueCents * (rule.value / 100));
+    case "daily":
+      return Math.round(dueCents * (rule.value / 100) * effectiveDays);
+    default:
+      return 0;
+  }
+}
+
+export interface WaterfallObligation {
+  penaltiesKes: number | string;
+  interestKes: number | string;
+  principalKes: number | string;
+}
+
+export interface WaterfallResult {
+  paidPenaltiesCents: number;
+  paidInterestCents: number;
+  paidPrincipalCents: number;
+  remainingPaymentCents: number;
+  remainingPenaltiesCents: number;
+  remainingInterestCents: number;
+  remainingPrincipalCents: number;
+  totalRemainingDueCents: number;
+}
+
+/**
+ * Priority payment waterfall:
+ * 1. Penalties & Fines
+ * 2. Accrued Interest
+ * 3. Principal
+ */
+export function applyPaymentWaterfall(
+  paymentKes: number | string,
+  obligations: WaterfallObligation
+): WaterfallResult {
+  let availableCents = toCents(paymentKes);
+  const penaltiesDue = toCents(obligations.penaltiesKes);
+  const interestDue = toCents(obligations.interestKes);
+  const principalDue = toCents(obligations.principalKes);
+
+  // 1. Settle penalties
+  const paidPenaltiesCents = Math.min(availableCents, penaltiesDue);
+  availableCents -= paidPenaltiesCents;
+  const remainingPenaltiesCents = penaltiesDue - paidPenaltiesCents;
+
+  // 2. Settle interest
+  const paidInterestCents = Math.min(availableCents, interestDue);
+  availableCents -= paidInterestCents;
+  const remainingInterestCents = interestDue - paidInterestCents;
+
+  // 3. Settle principal
+  const paidPrincipalCents = Math.min(availableCents, principalDue);
+  availableCents -= paidPrincipalCents;
+  const remainingPrincipalCents = principalDue - paidPrincipalCents;
+
+  const totalRemainingDueCents =
+    remainingPenaltiesCents + remainingInterestCents + remainingPrincipalCents;
+
+  return {
+    paidPenaltiesCents,
+    paidInterestCents,
+    paidPrincipalCents,
+    remainingPaymentCents: availableCents,
+    remainingPenaltiesCents,
+    remainingInterestCents,
+    remainingPrincipalCents,
+    totalRemainingDueCents,
+  };
 }

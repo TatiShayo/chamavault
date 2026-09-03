@@ -93,8 +93,7 @@ export async function POST(
     );
   }
 
-  const fileExt = file.name.split(".").pop();
-  const fileName = `${chamaId}/constitution-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+  const fileName = `${chamaId}/constitution-${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`;
 
   const { error: uploadError } = await supabase.storage
     .from("receipts")

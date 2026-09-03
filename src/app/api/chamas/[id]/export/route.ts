@@ -28,7 +28,7 @@ export async function GET(
       supabase.from("chama_members").select("*").eq("chama_id", chamaId),
       supabase.from("contributions").select("*").eq("chama_id", chamaId),
       supabase.from("loans").select("*").eq("chama_id", chamaId),
-      supabase.from("loan_repayments").select("*").eq("chama_id", chamaId),
+      supabase.from("loan_repayments").select("*, loans!inner(chama_id)").eq("loans.chama_id", chamaId),
       supabase.from("meetings").select("*").eq("chama_id", chamaId),
       supabase.from("fines").select("*").eq("chama_id", chamaId),
       supabase.from("expenses").select("*").eq("chama_id", chamaId),

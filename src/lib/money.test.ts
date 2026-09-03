@@ -188,3 +188,113 @@ describe("allocateDividends (canonical payout)", () => {
     expect(alloc.map((a) => a.amountKes)).toEqual([30, 30, 30]);
   });
 });
+
+// ── Compound Interest, Penalties, and Waterfall Tests ────────────────────────
+
+import {
+  compoundInterestCents,
+  calculateLatePenaltyCents,
+  applyPaymentWaterfall,
+} from "@/lib/money";
+
+describe("compoundInterestCents", () => {
+  it("calculates compound interest on principal", () => {
+    // 10,000 KES at 12% annual rate compounded monthly for 12 periods (1 year)
+    // A = 10000 * (1 + 0.01)^12 = 10000 * 1.12682503 = 11,268.25 KES
+    const res = compoundInterestCents(10000, 12, 12, 12);
+    expect(res.interestCents).toBe(126825);
+    expect(res.totalDueCents).toBe(1126825);
+  });
+
+  it("handles zero periods or zero rate", () => {
+    const resZeroPeriods = compoundInterestCents(5000, 10, 0);
+    expect(resZeroPeriods.interestCents).toBe(0);
+    expect(resZeroPeriods.totalDueCents).toBe(toCents(5000));
+
+    const resZeroRate = compoundInterestCents(5000, 0, 12);
+    expect(resZeroRate.interestCents).toBe(0);
+    expect(resZeroRate.totalDueCents).toBe(toCents(5000));
+  });
+});
+
+describe("calculateLatePenaltyCents", () => {
+  it("calculates flat late fee", () => {
+    const fee = calculateLatePenaltyCents(2000, {
+      type: "flat",
+      value: 200,
+      daysOverdue: 10,
+      graceDays: 5,
+    });
+    expect(fee).toBe(toCents(200));
+  });
+
+  it("returns 0 when within grace period", () => {
+    const fee = calculateLatePenaltyCents(2000, {
+      type: "flat",
+      value: 200,
+      daysOverdue: 3,
+      graceDays: 5,
+    });
+    expect(fee).toBe(0);
+  });
+
+  it("calculates percentage fee", () => {
+    const fee = calculateLatePenaltyCents(5000, {
+      type: "percentage",
+      value: 10, // 10%
+      daysOverdue: 5,
+      graceDays: 0,
+    });
+    expect(fee).toBe(toCents(500));
+  });
+
+  it("calculates daily accrual fee", () => {
+    // 0.2%/day for 10 effective days (15 overdue - 5 grace) on 10,000 KES
+    // 10 days * 0.2% = 2% on 10,000 = 200 KES
+    const fee = calculateLatePenaltyCents(10000, {
+      type: "daily",
+      value: 0.2,
+      daysOverdue: 15,
+      graceDays: 5,
+    });
+    expect(fee).toBe(toCents(200));
+  });
+});
+
+describe("applyPaymentWaterfall", () => {
+  it("settles penalties first, then interest, then principal", () => {
+    // Obligations: 500 penalties, 1,000 interest, 10,000 principal (Total 11,500)
+    // Partial payment: 1,200 KES
+    // Pays: 500 penalties (0 remaining), 700 interest (300 remaining), 0 principal (10,000 remaining)
+    const result = applyPaymentWaterfall(1200, {
+      penaltiesKes: 500,
+      interestKes: 1000,
+      principalKes: 10000,
+    });
+
+    expect(result.paidPenaltiesCents).toBe(toCents(500));
+    expect(result.paidInterestCents).toBe(toCents(700));
+    expect(result.paidPrincipalCents).toBe(0);
+    expect(result.remainingPenaltiesCents).toBe(0);
+    expect(result.remainingInterestCents).toBe(toCents(300));
+    expect(result.remainingPrincipalCents).toBe(toCents(10000));
+    expect(result.remainingPaymentCents).toBe(0);
+    expect(result.totalRemainingDueCents).toBe(toCents(10300));
+  });
+
+  it("handles overpayment by returning surplus in remainingPaymentCents", () => {
+    // Total obligation = 500 + 1000 + 5000 = 6,500 KES
+    // Payment = 7,000 KES
+    const result = applyPaymentWaterfall(7000, {
+      penaltiesKes: 500,
+      interestKes: 1000,
+      principalKes: 5000,
+    });
+
+    expect(result.paidPenaltiesCents).toBe(toCents(500));
+    expect(result.paidInterestCents).toBe(toCents(1000));
+    expect(result.paidPrincipalCents).toBe(toCents(5000));
+    expect(result.totalRemainingDueCents).toBe(0);
+    expect(result.remainingPaymentCents).toBe(toCents(500));
+  });
+});

@@ -1,21 +1,24 @@
 import type { DbState } from './mockDb';
+import { toCents, fromCents, sumCents, allocateByShares, loanBalance } from './money';
 
 /**
  * Calculates the total savings for a specific chama, sum of paid contributions excluding dividends.
  */
 export function calculateTotalSavings(db: DbState, chamaId: string): number {
-  return db.contributions
+  const paidAmounts = db.contributions
     .filter(c => c.chama_id === chamaId && c.status === 'paid' && !c.remarks?.includes('Dividend'))
-    .reduce((sum, c) => sum + c.amount, 0);
+    .map(c => c.amount);
+  return fromCents(sumCents(paidAmounts));
 }
 
 /**
  * Calculates a specific member's total savings within a chama, sum of paid contributions excluding dividends.
  */
 export function calculateMemberSavings(db: DbState, chamaId: string, memberId: string): number {
-  return db.contributions
+  const paidAmounts = db.contributions
     .filter(c => c.member_id === memberId && c.chama_id === chamaId && c.status === 'paid' && !c.remarks?.includes('Dividend'))
-    .reduce((sum, c) => sum + c.amount, 0);
+    .map(c => c.amount);
+  return fromCents(sumCents(paidAmounts));
 }
 
 /**
@@ -24,14 +27,17 @@ export function calculateMemberSavings(db: DbState, chamaId: string, memberId: s
  */
 export function calculateActiveLoansTotal(db: DbState, chamaId: string): number {
   const activeLoans = db.loans.filter(l => l.chama_id === chamaId && l.status === 'active');
-  const loanIds = activeLoans.map(l => l.id);
-  const loanPrincipal = activeLoans.reduce((sum, l) => sum + l.amount, 0);
-  const loanInterest = activeLoans.reduce((sum, l) => sum + (l.amount * (l.interest_rate / 100)), 0);
-  const totalRepayable = loanPrincipal + loanInterest;
-  const totalRepaid = db.repayments
-    .filter(r => loanIds.includes(r.loan_id))
-    .reduce((sum, r) => sum + r.amount, 0);
-  return Math.max(0, totalRepayable - totalRepaid);
+  
+  let totalOutstandingCents = 0;
+  for (const loan of activeLoans) {
+    const repaidCents = sumCents(
+      db.repayments.filter(r => r.loan_id === loan.id).map(r => r.amount)
+    );
+    const balance = loanBalance(loan.amount, loan.interest_rate, fromCents(repaidCents));
+    totalOutstandingCents += balance.outstandingCents;
+  }
+
+  return fromCents(totalOutstandingCents);
 }
 
 /**
@@ -40,11 +46,10 @@ export function calculateActiveLoansTotal(db: DbState, chamaId: string): number 
 export function calculateSingleLoanBalance(db: DbState, loanId: string): number {
   const loan = db.loans.find(l => l.id === loanId);
   if (!loan) return 0;
-  const totalRepayable = loan.amount * (1 + loan.interest_rate / 100);
-  const totalRepaid = db.repayments
-    .filter(r => r.loan_id === loanId)
-    .reduce((sum, r) => sum + r.amount, 0);
-  return Math.max(0, totalRepayable - totalRepaid);
+  const repaidCents = sumCents(
+    db.repayments.filter(r => r.loan_id === loanId).map(r => r.amount)
+  );
+  return fromCents(loanBalance(loan.amount, loan.interest_rate, fromCents(repaidCents)).outstandingCents);
 }
 
 /**
@@ -57,9 +62,9 @@ export function checkLoanEligibility(db: DbState, chamaId: string, memberId: str
   maxLimit: number;
 } {
   const savingsBase = calculateMemberSavings(db, chamaId, memberId);
-  const maxLimit = savingsBase * 3;
+  const maxLimit = fromCents(toCents(savingsBase) * 3);
   return {
-    eligible: requestedAmount <= maxLimit,
+    eligible: toCents(requestedAmount) <= toCents(maxLimit),
     savingsBase,
     maxLimit
   };
@@ -75,7 +80,7 @@ export interface DividendSplitResult {
 
 /**
  * Calculates the dividend split for a given surplus.
- * Distributes exactly in proportion to member savings shares.
+ * Distributes exactly in proportion to member savings shares using the canonical largest-remainder method.
  */
 export function calculateDividendSplits(
   db: DbState,
@@ -85,7 +90,7 @@ export function calculateDividendSplits(
   const chamaMembers = db.members.filter(m => m.chama_id === chamaId);
   const totalChamaSavings = calculateTotalSavings(db, chamaId);
 
-  if (totalChamaSavings === 0) {
+  if (totalChamaSavings === 0 || chamaMembers.length === 0) {
     return chamaMembers.map(m => ({
       memberId: m.id,
       name: m.name,
@@ -95,16 +100,27 @@ export function calculateDividendSplits(
     }));
   }
 
-  return chamaMembers.map(member => {
-    const mSavings = calculateMemberSavings(db, chamaId, member.id);
-    const share = mSavings / totalChamaSavings;
-    const dividend = dividendSurplus * share;
+  const memberSavingsMap = new Map<string, number>();
+  for (const member of chamaMembers) {
+    memberSavingsMap.set(member.id, calculateMemberSavings(db, chamaId, member.id));
+  }
+
+  const totalCents = toCents(dividendSurplus);
+  const allocations = allocateByShares(
+    totalCents,
+    chamaMembers,
+    (m) => toCents(memberSavingsMap.get(m.id) || 0)
+  );
+
+  return allocations.map(({ item: member, amountCents }) => {
+    const mSavings = memberSavingsMap.get(member.id) || 0;
+    const sharePct = totalChamaSavings > 0 ? (mSavings / totalChamaSavings) * 100 : 0;
     return {
       memberId: member.id,
       name: member.name,
       savings: mSavings,
-      share: share * 100, // percentage
-      dividend
+      share: Number(sharePct.toFixed(2)),
+      dividend: fromCents(amountCents),
     };
   });
 }
