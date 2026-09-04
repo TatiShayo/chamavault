@@ -1,18 +1,21 @@
-# ChamaVault — Product Spec
+# SPEC 001: Chama Microfinance & Rotation Ledger Engine
 
-**Tagline:** "Your chama. Organized. Transparent. Growing."
+## Problem Statement
+Informal African investment groups (Chamas) lose funds and experience social friction due to paper-based record keeping, delayed payments, and disputed payout orders.
 
-**Problem:** 1M+ chamas in Kenya run on WhatsApp messages, Excel spreadsheets, and handwritten notebooks.
+## Solution
+A digital ledger with M-Pesa integration, automated contribution reminders, immutable rotation schedules, and transparent penalty calculations.
 
-**Solution:** Mobile-first chama management: contributions, loans, fines, minutes, elections, M-Pesa friendly.
+## User Stories
+1. As a chama member, I want to see my locked payout date, so that I can plan my financial investments with confidence.
+2. As a treasurer, I want M-Pesa contributions automatically matched to members, so that I don't have to reconcile bank statements manually.
+3. As a member, I want fair and predictable late fee calculations, so that penalties are transparent and non-predatory.
 
-**Pricing:**
-- Small (<10 members): KES 500/mo
-- Standard (<30): KES 1,000/mo
-- Large (30+): KES 2,000/mo
+## Implementation Decisions
+- Implement rotation logic in `src/lib/chama.ts`.
+- Late fee compounding invariants in `src/lib/penalties.ts`.
+- Daraja callback reconciliation in `src/lib/mpesa.ts`.
 
-**Kills:** Excel, WhatsApp groups, handwritten ledgers, basic Google Sheets
-
-**Stack:** Next.js 14 App Router, Supabase, Stripe (non-Kenya), M-Pesa (Daraja API), Resend/WhatsApp
-
-**Target:** Kenyan chama groups (1M+ nationwide)
+## Testing Decisions
+- Seam: `src/lib/late-fee-compounding-invariants.test.ts`.
+- Verify mathematical invariance of late penalties across multi-week delinquency.
