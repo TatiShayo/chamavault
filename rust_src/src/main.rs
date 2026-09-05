@@ -1,7 +1,6 @@
-
 //! chamavault-ledger benchmark binary
 use std::time::Instant;
-use chamavault_ledger::{Ledger, LedgerError};
+use chamavault_ledger::Ledger;
 
 fn main() {
     println!("=== chamavault ACID Ledger Engine (Rust) ===");

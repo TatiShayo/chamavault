@@ -1,8 +1,8 @@
-
 //! chamavault_ledger — ACID double-entry financial ledger engine
-//! All monetary values are integer cents to eliminate floating-point rounding.
+//! All monetary values are integer cents with checked arithmetic to guarantee zero overflow.
 
 use std::collections::HashMap;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Monetary unit: integer cents (1_00 = $1.00 / KES 1.00)
 pub type Cents = i64;
@@ -12,13 +12,14 @@ pub const SYSTEM_ACCOUNT_ID: u64 = 0;
 
 // ─── Errors ──────────────────────────────────────────────────────────────────
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LedgerError {
     InsufficientFunds { available: Cents, requested: Cents },
     AccountNotFound(u64),
     InvalidAmount,
     SelfTransfer,
     AccountAlreadyExists(u64),
+    Overflow,
 }
 
 impl std::fmt::Display for LedgerError {
@@ -30,9 +31,12 @@ impl std::fmt::Display for LedgerError {
             LedgerError::InvalidAmount       => write!(f, "Amount must be positive"),
             LedgerError::SelfTransfer        => write!(f, "Cannot transfer to same account"),
             LedgerError::AccountAlreadyExists(id) => write!(f, "Account {} already exists", id),
+            LedgerError::Overflow            => write!(f, "Arithmetic overflow in ledger operation"),
         }
     }
 }
+
+impl std::error::Error for LedgerError {}
 
 // ─── Domain types ─────────────────────────────────────────────────────────────
 
@@ -68,7 +72,6 @@ impl Ledger {
             journal:       Vec::new(),
             next_entry_id: 1,
         };
-        // Bootstrap system account
         ledger.accounts.insert(SYSTEM_ACCOUNT_ID, Account {
             id:      SYSTEM_ACCOUNT_ID,
             name:    "SYSTEM".to_string(),
@@ -78,6 +81,9 @@ impl Ledger {
     }
 
     pub fn create_account(&mut self, id: u64, name: &str, initial_balance: Cents) -> Result<(), LedgerError> {
+        if initial_balance < 0 {
+            return Err(LedgerError::InvalidAmount);
+        }
         if self.accounts.contains_key(&id) {
             return Err(LedgerError::AccountAlreadyExists(id));
         }
@@ -89,28 +95,37 @@ impl Ledger {
         if amount <= 0 { return Err(LedgerError::InvalidAmount); }
         if from_id == to_id { return Err(LedgerError::SelfTransfer); }
 
-        {
-            let from = self.accounts.get(&from_id).ok_or(LedgerError::AccountNotFound(from_id))?;
-            if from.balance < amount {
-                return Err(LedgerError::InsufficientFunds {
-                    available: from.balance,
-                    requested: amount,
-                });
-            }
-            if !self.accounts.contains_key(&to_id) {
-                return Err(LedgerError::AccountNotFound(to_id));
-            }
+        let from_bal = self.accounts.get(&from_id)
+            .ok_or(LedgerError::AccountNotFound(from_id))?.balance;
+        if from_bal < amount {
+            return Err(LedgerError::InsufficientFunds {
+                available: from_bal,
+                requested: amount,
+            });
         }
 
-        self.accounts.get_mut(&from_id).unwrap().balance -= amount;
-        self.accounts.get_mut(&to_id).unwrap().balance   += amount;
+        let to_bal = self.accounts.get(&to_id)
+            .ok_or(LedgerError::AccountNotFound(to_id))?.balance;
+
+        let new_from = from_bal.checked_sub(amount)
+            .ok_or(LedgerError::InsufficientFunds { available: from_bal, requested: amount })?;
+        let new_to = to_bal.checked_add(amount)
+            .ok_or(LedgerError::Overflow)?;
+
+        self.accounts.get_mut(&from_id).unwrap().balance = new_from;
+        self.accounts.get_mut(&to_id).unwrap().balance   = new_to;
+
+        let now_ms = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis() as u64;
 
         let entry_id = self.next_entry_id;
         self.next_entry_id += 1;
         self.journal.push(JournalEntry {
             id: entry_id, from_id, to_id, amount,
             memo: memo.to_string(),
-            timestamp_ms: 0,
+            timestamp_ms: now_ms,
         });
         Ok(entry_id)
     }
@@ -128,7 +143,7 @@ impl Ledger {
     }
 
     pub fn apply_late_fee(&mut self, account_id: u64, fee_cents: Cents, max_fee_cents: Cents) -> Result<(), LedgerError> {
-        if fee_cents <= 0 { return Err(LedgerError::InvalidAmount); }
+        if fee_cents <= 0 || max_fee_cents <= 0 { return Err(LedgerError::InvalidAmount); }
         let effective_fee = fee_cents.min(max_fee_cents);
         let available = self.balance(account_id)?;
         if available < effective_fee {
@@ -168,13 +183,24 @@ mod tests {
     }
 
     #[test]
+    fn test_create_account_negative_balance_rejected() {
+        let mut l = Ledger::new();
+        assert!(matches!(l.create_account(1, "Alice", -500), Err(LedgerError::InvalidAmount)));
+    }
+
+    #[test]
     fn test_transfer_happy_path() {
         let mut l = ledger_with_accounts();
         let initial_supply = l.total_supply();
-        l.post_transfer(1, 2, 500, "payment").unwrap();
+        let entry_id = l.post_transfer(1, 2, 500, "payment").unwrap();
         assert_eq!(l.balance(1).unwrap(), 9_500);
         assert_eq!(l.balance(2).unwrap(), 5_500);
         assert_eq!(l.total_supply(), initial_supply);
+
+        let entries = l.account_journal(1);
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].id, entry_id);
+        assert!(entries[0].timestamp_ms > 0);
     }
 
     #[test]
@@ -210,6 +236,16 @@ mod tests {
     }
 
     #[test]
+    fn test_overflow_protection() {
+        let mut l = Ledger::new();
+        l.create_account(1, "Alice", i64::MAX).unwrap();
+        l.create_account(2, "Bob", 1).unwrap();
+        // Alice has i64::MAX, Bob has 1. Transferring i64::MAX to Bob would overflow Bob's balance
+        let result = l.post_transfer(1, 2, i64::MAX, "overflow");
+        assert!(matches!(result, Err(LedgerError::Overflow)));
+    }
+
+    #[test]
     fn test_total_supply_conserved_across_1000_transfers() {
         let mut l = Ledger::new();
         for i in 1u64..=100 { l.create_account(i, "acct", 1_000_000).unwrap(); }
@@ -239,7 +275,7 @@ mod tests {
         for _ in 0..5 { l.post_transfer(1, 2, 10, "x").unwrap(); }
         for _ in 0..3 { l.post_transfer(2, 1, 5, "y").unwrap(); }
         let alice_entries = l.account_journal(1);
-        assert_eq!(alice_entries.len(), 8); // 5 sent + 3 received
+        assert_eq!(alice_entries.len(), 8);
     }
 
     #[test]
@@ -254,9 +290,8 @@ mod tests {
     fn test_late_fee_capped_at_max() {
         let mut l = ledger_with_accounts();
         let supply_before = l.total_supply();
-        // Request 200 cents fee, max 100 cents — should apply 100
         l.apply_late_fee(1, 200, 100).unwrap();
-        assert_eq!(l.balance(1).unwrap(), 9_900); // 10000 - 100
+        assert_eq!(l.balance(1).unwrap(), 9_900);
         assert_eq!(l.balance(SYSTEM_ACCOUNT_ID).unwrap(), 100);
         assert_eq!(l.total_supply(), supply_before);
     }
@@ -267,6 +302,13 @@ mod tests {
         l.create_account(5, "Broke", 50).unwrap();
         let result = l.apply_late_fee(5, 200, 200);
         assert!(matches!(result, Err(LedgerError::InsufficientFunds { available: 50, requested: 200 })));
+    }
+
+    #[test]
+    fn test_late_fee_zero_or_negative_max_rejected() {
+        let mut l = ledger_with_accounts();
+        assert!(matches!(l.apply_late_fee(1, 50, 0), Err(LedgerError::InvalidAmount)));
+        assert!(matches!(l.apply_late_fee(1, 50, -10), Err(LedgerError::InvalidAmount)));
     }
 
     #[test]
@@ -298,7 +340,6 @@ mod tests {
         }
         for h in handles { h.join().unwrap(); }
         let l = ledger.lock().unwrap();
-        // Supply must be exactly conserved
         assert_eq!(l.total_supply(), 20_000_000);
     }
 
