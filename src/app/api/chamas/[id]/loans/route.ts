@@ -2,6 +2,24 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import { sendLoanApprovalEmail } from "@/lib/email";
+import { z } from "zod";
+import { fromCents, loanBalance } from "@/lib/money";
+
+/**
+ * Loan creation payload.
+ *
+ * `amount` is accepted as a positive finite number — the previous
+ * implementation did `Number(amount)`, which turned `null` into 0, `"abc"` into
+ * NaN (bypassing the `<= 0` guard because `NaN <= 0` is false), and accepted
+ * `1e308`.
+ */
+const loanCreateSchema = z.object({
+  memberId: z.string().uuid(),
+  amount: z.number().positive().finite().max(9_999_999_999_999),
+  interestRate: z.number().min(0).max(100).default(10),
+  dueDate: z.string().date().nullish(),
+  purpose: z.string().trim().max(1000).nullish(),
+});
 
 export async function GET(
   request: Request,
@@ -110,24 +128,45 @@ export async function POST(
   }
 
   const body = await request.json();
-  const { memberId, amount, purpose, dueDate, interestRate } = body;
 
-  if (!memberId || !amount) {
+  // Validate the payload. Previously every field arrived unvalidated, so
+  // `Number("abc")` produced NaN, `Number(null)` produced 0 (which slipped past
+  // a `<= 0` check only by accident), and a negative interest_rate was stored.
+  const parsed = loanCreateSchema.safeParse(body);
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "memberId and amount are required" },
+      { error: "Invalid loan request", details: parsed.error.flatten().fieldErrors },
       { status: 400 }
     );
   }
+  const { memberId, amount, interestRate, dueDate, purpose } = parsed.data;
 
-  const loanAmount = Number(amount);
-  if (loanAmount <= 0) {
-    return NextResponse.json({ error: "Amount must be greater than 0" }, { status: 400 });
+  // The target member MUST belong to this chama. The previous code only checked
+  // that the *caller* was a member, then used the body's `memberId` verbatim —
+  // so an officer of chama A could borrow chama B's contribution history to
+  // justify a loan issued from chama A.
+  const { data: targetMember } = await supabase
+    .from("chama_members")
+    .select("id")
+    .eq("id", memberId)
+    .eq("chama_id", chamaId)
+    .maybeSingle();
+
+  if (!targetMember) {
+    return NextResponse.json(
+      { error: "Member not found in this chama" },
+      { status: 404 }
+    );
   }
 
+  const loanAmount = amount;
+
+  // Eligibility is computed from contributions INSIDE this chama only.
   const { data: memberContribs } = await supabase
     .from("contributions")
     .select("amount_paid")
-    .eq("member_id", memberId);
+    .eq("member_id", memberId)
+    .eq("chama_id", chamaId);
 
   const totalContributions = (memberContribs || []).reduce(
     (sum, c) => sum + Number(c.amount_paid),
@@ -147,11 +186,14 @@ export async function POST(
       chama_id: chamaId,
       member_id: memberId,
       amount: loanAmount,
-      interest_rate: Number(interestRate) || 10,
+      interest_rate: interestRate,
       due_date: dueDate || null,
-      status: membership.role === "member" ? "pending" : "approved",
-      approved_by: membership.role !== "member" ? user.id : null,
-      disbursed_at: membership.role !== "member" ? new Date().toISOString() : null,
+      // Officers may never self-approve. Creating a loan and disbursing it in
+      // the same request bypasses the M-of-N approval path entirely, so every
+      // loan now starts `pending` and must go through the PATCH approve route.
+      status: "pending",
+      approved_by: null,
+      disbursed_at: null,
     })
     .select("id, member_id, amount, interest_rate, disbursed_at, due_date, status, approved_by, created_at")
     .single();
@@ -173,8 +215,11 @@ export async function POST(
       createdAt: loan.created_at,
       totalRepaid: 0,
       totalRepayments: 0,
-      outstanding: Number(loan.amount) * (1 + Number(loan.interest_rate || 0) / 100),
-      totalDue: Number(loan.amount) * (1 + Number(loan.interest_rate || 0) / 100),
+      // Integer-cents arithmetic. The previous expression
+      // `Number(amount) * (1 + rate/100)` accumulates IEEE-754 error before
+      // any rounding; `loanBalance()` converts to cents once and rounds once.
+      outstanding: fromCents(loanBalance(loan.amount, loan.interest_rate).outstandingCents),
+      totalDue: fromCents(loanBalance(loan.amount, loan.interest_rate).totalDueCents),
     },
   });
 }
